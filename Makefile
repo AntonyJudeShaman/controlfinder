@@ -1,4 +1,4 @@
-.PHONY: up down reset-db schema psql test ann-demo docs
+.PHONY: up down reset-db schema psql test ann-demo ingest docs
 
 up: .env
 	docker compose up -d --wait
@@ -26,6 +26,11 @@ test:
 
 ann-demo:
 	uv run python -m controlfinder.index.ann_filter_demo
+	$(MAKE) docs
+
+# Replaces the controls and chunks tables, including any embeddings.
+ingest:
+	uv run python -m controlfinder.ingest
 	$(MAKE) docs
 
 # Regenerates every results table in docs/learn/*.md and README.md.

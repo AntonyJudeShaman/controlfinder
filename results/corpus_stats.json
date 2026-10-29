@@ -1,0 +1,58 @@
+{
+  "catalog": {
+    "url": "https://raw.githubusercontent.com/usnistgov/oscal-content/f0de6d8d8c059d374f15e0ae07508d82e370fc1d/nist.gov/SP800-53/rev5/json/NIST_SP-800-53_rev5_catalog.json",
+    "sha256": "64ca6b4161de51ab6af098a7d101d326f14c95e1abf721396cd8a049e8115eeb",
+    "version": "5.2.0",
+    "last_modified": "2026-10-22T11:30:00.00000-00:00"
+  },
+  "tokenizer": {
+    "model": "BAAI/bge-small-en-v1.5",
+    "revision": "5c38ec7c405ec4b44b94cc5a9bb96e735b38267a",
+    "max_tokens": 512
+  },
+  "families": 20,
+  "base_controls": 300,
+  "enhancements": 714,
+  "withdrawn": {
+    "base_controls": 24,
+    "enhancements": 158,
+    "by_relation": {
+      "incorporated-into": 146,
+      "moved-to": 34,
+      "none": 2
+    }
+  },
+  "id_labels_checked": 3587,
+  "token_lengths": {
+    "A_control_only": {
+      "chunks": 300,
+      "min": 57,
+      "median": 225.5,
+      "p90": 488.4,
+      "max": 957,
+      "longest_chunk": "A:pl-2",
+      "over_limit": 22,
+      "tokens_past_limit_share": 0.0411
+    },
+    "B_control_plus_enh": {
+      "chunks": 300,
+      "min": 57,
+      "median": 402.0,
+      "p90": 1174.3,
+      "max": 9458,
+      "longest_chunk": "B:sa-8",
+      "over_limit": 100,
+      "tokens_past_limit_share": 0.3992
+    },
+    "C_separate": {
+      "chunks": 1014,
+      "min": 32,
+      "median": 137.0,
+      "p90": 320.7,
+      "max": 957,
+      "longest_chunk": "C:pl-2",
+      "over_limit": 24,
+      "tokens_past_limit_share": 0.0203
+    }
+  }
+}
