@@ -36,7 +36,36 @@ def ann_filter_demo() -> str:
     return table(header, rows)
 
 
-RENDERERS = {"ann_filter_demo": ann_filter_demo}
+def corpus_counts() -> str:
+    d = json.loads((RESULTS / "corpus_stats.json").read_text())
+    w = d["withdrawn"]
+    rows = [
+        ["Families", d["families"]],
+        ["Active base controls", d["base_controls"]],
+        ["Active enhancements", d["enhancements"]],
+        ["Withdrawn base controls (skipped)", w["base_controls"]],
+        ["Withdrawn enhancements (skipped)", w["enhancements"]],
+        *([f"Withdrawn, linked as `{relation}`" if relation != "none" else "Withdrawn, no replacement", n]
+          for relation, n in w["by_relation"].items()),
+        ["NIST ID labels checked against `normalize_control_id`", d["id_labels_checked"]],
+    ]
+    return table([f"SP 800-53 Rev {d['catalog']['version']} catalog", "Count"], rows)
+
+
+def chunk_lengths() -> str:
+    d = json.loads((RESULTS / "corpus_stats.json").read_text())
+    limit = d["tokenizer"]["max_tokens"]
+    rows = [
+        [strategy, s["chunks"], s["min"], f"{s['median']:g}", f"{s['p90']:g}", f"{s['max']} (`{s['longest_chunk']}`)",
+         f"{s['over_limit']} ({s['over_limit'] / s['chunks']:.0%})", f"{s['tokens_past_limit_share']:.1%}"]
+        for strategy, s in d["token_lengths"].items()
+    ]
+    header = ["Strategy", "Chunks", "Min", "Median", "p90", "Max (chunk)", f"Over {limit} tokens",
+              f"Share of all tokens past {limit}"]
+    return table(header, rows)
+
+
+RENDERERS = {"ann_filter_demo": ann_filter_demo, "corpus_counts": corpus_counts, "chunk_lengths": chunk_lengths}
 
 
 def render(text: str) -> str:
