@@ -5,3 +5,5 @@ __pycache__/
 .env
 .cursor/
 .DS_Store
+# Pinned downloads: `make ingest` fetches them again and checks their sha256.
+data/raw/*.json
