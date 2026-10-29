@@ -1,0 +1,24 @@
+# Local Postgres 16 + pgvector. Credentials are for local development only.
+services:
+  db:
+    # Tag for humans, digest for reproducibility: the digest pins the exact image bytes
+    # (multi-arch index, so the same pin works on arm64 Macs and amd64 CI runners).
+    image: pgvector/pgvector:0.8.7-pg16@sha256:7b822b0aac60967beb1ea5e576b8602c94c300a157d187f385ae3e0da199b90a
+    environment:
+      POSTGRES_USER: controlfinder
+      POSTGRES_PASSWORD: controlfinder
+      POSTGRES_DB: controlfinder
+    ports:
+      - "5433:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      # -h 127.0.0.1 checks TCP. On first boot the image runs a temporary socket-only server
+      # for init scripts; a socket check would report "ready" before the real server is up.
+      test: ["CMD-SHELL", "pg_isready -h 127.0.0.1 -U controlfinder -d controlfinder"]
+      interval: 2s
+      timeout: 3s
+      retries: 30
+
+volumes:
+  pgdata:
