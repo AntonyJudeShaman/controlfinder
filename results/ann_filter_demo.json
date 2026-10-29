@@ -1,0 +1,78 @@
+{
+  "what": "Rows returned for a strategy-filtered top-50 ANN query under different index setups",
+  "caveat": "Synthetic random unit vectors: measures result counts and latency, not retrieval quality",
+  "pgvector_version": "0.8.7",
+  "postgres_version": "16.15 (Debian 16.15-1.pgdg12+2)",
+  "seed": 42,
+  "rows_per_strategy": {
+    "A_control_only": 300,
+    "B_control_plus_enh": 300,
+    "C_separate": 1000
+  },
+  "target_strategy": "A_control_only",
+  "limit": 50,
+  "n_queries": 20,
+  "default_plan_with_partial_index": "Limit > Sort > Seq Scan",
+  "setups": [
+    {
+      "setup": "exact: sequential scan, no index",
+      "plan": "Limit > Sort > Seq Scan",
+      "rows_returned": {
+        "min": 50,
+        "median": 50.0,
+        "max": 50
+      },
+      "latency_ms_p50": 0.61
+    },
+    {
+      "setup": "global index, ef_search=40 (default)",
+      "plan": "Limit > Index Scan (ann_demo_idx)",
+      "rows_returned": {
+        "min": 2,
+        "median": 7.0,
+        "max": 11
+      },
+      "latency_ms_p50": 0.67
+    },
+    {
+      "setup": "global index, ef_search=100",
+      "plan": "Limit > Index Scan (ann_demo_idx)",
+      "rows_returned": {
+        "min": 12,
+        "median": 19.0,
+        "max": 25
+      },
+      "latency_ms_p50": 0.71
+    },
+    {
+      "setup": "global index, ef_search=40, iterative_scan=relaxed_order",
+      "plan": "Limit > Index Scan (ann_demo_idx)",
+      "rows_returned": {
+        "min": 50,
+        "median": 50.0,
+        "max": 50
+      },
+      "latency_ms_p50": 0.93
+    },
+    {
+      "setup": "partial index, ef_search=40 (default)",
+      "plan": "Limit > Index Scan (ann_demo_idx)",
+      "rows_returned": {
+        "min": 40,
+        "median": 40.0,
+        "max": 40
+      },
+      "latency_ms_p50": 0.53
+    },
+    {
+      "setup": "partial index, ef_search=100",
+      "plan": "Limit > Index Scan (ann_demo_idx)",
+      "rows_returned": {
+        "min": 50,
+        "median": 50.0,
+        "max": 50
+      },
+      "latency_ms_p50": 0.6
+    }
+  ]
+}
