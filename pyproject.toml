@@ -1,0 +1,26 @@
+[project]
+name = "controlfinder"
+version = "0.1.0"
+description = "Evaluated RAG + LangGraph agent over NIST SP 800-53 Rev 5"
+requires-python = ">=3.11"
+dependencies = [
+    "psycopg[binary]==3.3.6",
+    "python-dotenv==1.2.4",
+]
+
+[dependency-groups]
+dev = [
+    "pytest==9.1.1",
+]
+
+[build-system]
+requires = ["uv_build>=0.12.3,<0.13"]
+build-backend = "uv_build"
+
+[tool.uv]
+# Resolve every package, including transitive ones, as of this date, so nothing in the
+# lockfile is newer than two weeks before the project started (2026-10-23).
+exclude-newer = "2026-10-09T00:00:00Z"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
