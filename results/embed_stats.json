@@ -1,0 +1,17 @@
+{
+  "model": "BAAI/bge-small-en-v1.5",
+  "revision": "5c38ec7c405ec4b44b94cc5a9bb96e735b38267a",
+  "dimensions": 384,
+  "max_seq_length": 512,
+  "chunks_embedded": {
+    "A_control_only": 300,
+    "B_control_plus_enh": 300,
+    "C_separate": 1014
+  },
+  "unit_length_tolerance": 1e-05,
+  "b_vector_equals_a": {
+    "base_controls_without_enhancements": 135,
+    "base_controls_with_enhancements": 165,
+    "of_which_every_enhancement_was_cut_off": 16
+  }
+}
