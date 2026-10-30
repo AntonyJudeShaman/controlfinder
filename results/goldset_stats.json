@@ -1,0 +1,234 @@
+{
+  "source": {
+    "url": "https://csrc.nist.gov/extensions/nudp/services/json/csf/download?olirids=all",
+    "sha256": "a998dccb1eed72400fd628390e6030dcbb910b5d5850909c4c65c30005efb55e",
+    "sheet": "CSF 2.0",
+    "reference_prefix": "SP 800-53 Rev 5.2.0:"
+  },
+  "subcategories": {
+    "active": 106,
+    "mapped": 106,
+    "unmapped": []
+  },
+  "left_out": {
+    "Rev 5.2.0 references on function or category rows": 6,
+    "Rev 5.1.1 references": 734,
+    "withdrawn subcategory rows": 79
+  },
+  "references_by_rule": {
+    "control": 718,
+    "enhancement": 18,
+    "withdrawn": 1,
+    "family": 3
+  },
+  "duplicates_after_roll_up": 4,
+  "family_level_dropped": [
+    {
+      "subcategory": "GV.OC-03",
+      "reference": "PT",
+      "counts_as": []
+    },
+    {
+      "subcategory": "PR.IR-03",
+      "reference": "CP",
+      "counts_as": []
+    },
+    {
+      "subcategory": "PR.IR-03",
+      "reference": "IR",
+      "counts_as": []
+    }
+  ],
+  "withdrawn_remapped": [
+    {
+      "subcategory": "DE.AE-06",
+      "reference": "RA-04",
+      "counts_as": [
+        "ra-3"
+      ]
+    }
+  ],
+  "enhancements_rolled_up": [
+    {
+      "subcategory": "GV.OC-04",
+      "reference": "CP-02(08)",
+      "counts_as": [
+        "cp-2"
+      ]
+    },
+    {
+      "subcategory": "GV.OC-04",
+      "reference": "PM-30(01)",
+      "counts_as": [
+        "pm-30"
+      ]
+    },
+    {
+      "subcategory": "ID.RA-01",
+      "reference": "SA-11(02)",
+      "counts_as": [
+        "sa-11"
+      ]
+    },
+    {
+      "subcategory": "ID.RA-01",
+      "reference": "SA-15(07)",
+      "counts_as": [
+        "sa-15"
+      ]
+    },
+    {
+      "subcategory": "ID.RA-01",
+      "reference": "SA-15(08)",
+      "counts_as": [
+        "sa-15"
+      ]
+    },
+    {
+      "subcategory": "ID.IM-01",
+      "reference": "SA-17(06)",
+      "counts_as": [
+        "sa-17"
+      ]
+    },
+    {
+      "subcategory": "PR.PS-02",
+      "reference": "MA-03(06)",
+      "counts_as": [
+        "ma-3"
+      ]
+    },
+    {
+      "subcategory": "PR.PS-02",
+      "reference": "SA-10(01)",
+      "counts_as": [
+        "sa-10"
+      ]
+    },
+    {
+      "subcategory": "PR.PS-03",
+      "reference": "CM-07(09)",
+      "counts_as": [
+        "cm-7"
+      ]
+    },
+    {
+      "subcategory": "PR.PS-03",
+      "reference": "SA-10(03)",
+      "counts_as": [
+        "sa-10"
+      ]
+    },
+    {
+      "subcategory": "PR.PS-03",
+      "reference": "SC-03(01)",
+      "counts_as": [
+        "sc-3"
+      ]
+    },
+    {
+      "subcategory": "PR.PS-03",
+      "reference": "SC-39(01)",
+      "counts_as": [
+        "sc-39"
+      ]
+    },
+    {
+      "subcategory": "PR.PS-04",
+      "reference": "SA-15(13)",
+      "counts_as": [
+        "sa-15"
+      ]
+    },
+    {
+      "subcategory": "PR.PS-05",
+      "reference": "CM-07(02)",
+      "counts_as": [
+        "cm-7"
+      ]
+    },
+    {
+      "subcategory": "PR.PS-05",
+      "reference": "CM-07(04)",
+      "counts_as": [
+        "cm-7"
+      ]
+    },
+    {
+      "subcategory": "PR.PS-05",
+      "reference": "CM-07(05)",
+      "counts_as": [
+        "cm-7"
+      ]
+    },
+    {
+      "subcategory": "PR.PS-06",
+      "reference": "SA-15(13)",
+      "counts_as": [
+        "sa-15"
+      ]
+    },
+    {
+      "subcategory": "RS.AN-03",
+      "reference": "SI-02(07)",
+      "counts_as": [
+        "si-2"
+      ]
+    }
+  ],
+  "gold_set_size": {
+    "min": 1,
+    "median": 5.0,
+    "max": 40,
+    "subcategories_over_5": 38,
+    "subcategories_over_10": 18,
+    "subcategories_over_20": 7
+  },
+  "examples_per_subcategory": {
+    "min": 1,
+    "median": 3.0,
+    "max": 10
+  },
+  "split": {
+    "unit": "subcategory",
+    "stratified_by": "CSF function",
+    "seed": 20261023,
+    "dev_share": 0.7,
+    "dev": {
+      "subcategories": 75,
+      "subcat_queries": 75,
+      "example_queries": 263
+    },
+    "test": {
+      "subcategories": 31,
+      "subcat_queries": 31,
+      "example_queries": 100
+    },
+    "by_function": {
+      "DE": {
+        "dev": 8,
+        "test": 3
+      },
+      "GV": {
+        "dev": 22,
+        "test": 9
+      },
+      "ID": {
+        "dev": 15,
+        "test": 6
+      },
+      "PR": {
+        "dev": 15,
+        "test": 7
+      },
+      "RC": {
+        "dev": 6,
+        "test": 2
+      },
+      "RS": {
+        "dev": 9,
+        "test": 4
+      }
+    }
+  }
+}
