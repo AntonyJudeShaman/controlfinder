@@ -1,0 +1,1509 @@
+{
+  "what": "Phase 2 baselines on the dev split, strategy C, scored on parent controls",
+  "split": "dev",
+  "strategy": "C_separate",
+  "queries": {
+    "subcat": 75,
+    "example": 263,
+    "all": 338
+  },
+  "subcategories": 75,
+  "fetch_depth": 293,
+  "parents_scored": 20,
+  "bootstrap": {
+    "unit": "subcategory",
+    "resamples": 1000,
+    "seed": 20261023,
+    "interval": "95% percentile"
+  },
+  "latency_note": "p50 per query, retrieval only: dense excludes embedding the query, BM25 excludes building the index",
+  "ceilings": {
+    "subcat": {
+      "recall@5": 0.8063,
+      "recall@10": 0.9111,
+      "recall@20": 0.972
+    },
+    "example": {
+      "recall@5": 0.7824,
+      "recall@10": 0.9023,
+      "recall@20": 0.9705
+    },
+    "all": {
+      "recall@5": 0.7877,
+      "recall@10": 0.9043,
+      "recall@20": 0.9708
+    }
+  },
+  "systems": {
+    "fts_and": {
+      "latency_ms_p50": 0.4606,
+      "queries_short_of_20_parents": 337,
+      "metrics": {
+        "subcat": {
+          "recall@5": {
+            "mean": 0.0308,
+            "ci95": [
+              0.0004,
+              0.0712
+            ]
+          },
+          "recall@10": {
+            "mean": 0.0308,
+            "ci95": [
+              0.0004,
+              0.0712
+            ]
+          },
+          "recall@20": {
+            "mean": 0.0308,
+            "ci95": [
+              0.0004,
+              0.0712
+            ]
+          },
+          "norm_recall@5": {
+            "mean": 0.0347,
+            "ci95": [
+              0.0027,
+              0.0773
+            ]
+          },
+          "norm_recall@10": {
+            "mean": 0.0318,
+            "ci95": [
+              0.0013,
+              0.0731
+            ]
+          },
+          "norm_recall@20": {
+            "mean": 0.0311,
+            "ci95": [
+              0.0007,
+              0.0718
+            ]
+          },
+          "precision@5": {
+            "mean": 0.0133,
+            "ci95": [
+              0.0027,
+              0.0267
+            ]
+          },
+          "precision@10": {
+            "mean": 0.0067,
+            "ci95": [
+              0.0013,
+              0.0133
+            ]
+          },
+          "mrr": {
+            "mean": 0.0467,
+            "ci95": [
+              0.0067,
+              0.0933
+            ]
+          },
+          "ndcg@10": {
+            "mean": 0.0345,
+            "ci95": [
+              0.0019,
+              0.0764
+            ]
+          }
+        },
+        "example": {
+          "recall@5": {
+            "mean": 0.0018,
+            "ci95": [
+              0.0,
+              0.0052
+            ]
+          },
+          "recall@10": {
+            "mean": 0.0018,
+            "ci95": [
+              0.0,
+              0.0052
+            ]
+          },
+          "recall@20": {
+            "mean": 0.0018,
+            "ci95": [
+              0.0,
+              0.0052
+            ]
+          },
+          "norm_recall@5": {
+            "mean": 0.0023,
+            "ci95": [
+              0.0,
+              0.006
+            ]
+          },
+          "norm_recall@10": {
+            "mean": 0.0019,
+            "ci95": [
+              0.0,
+              0.0053
+            ]
+          },
+          "norm_recall@20": {
+            "mean": 0.0018,
+            "ci95": [
+              0.0,
+              0.0052
+            ]
+          },
+          "precision@5": {
+            "mean": 0.0023,
+            "ci95": [
+              0.0,
+              0.006
+            ]
+          },
+          "precision@10": {
+            "mean": 0.0011,
+            "ci95": [
+              0.0,
+              0.003
+            ]
+          },
+          "mrr": {
+            "mean": 0.0076,
+            "ci95": [
+              0.0,
+              0.019
+            ]
+          },
+          "ndcg@10": {
+            "mean": 0.0029,
+            "ci95": [
+              0.0,
+              0.0079
+            ]
+          }
+        },
+        "all": {
+          "recall@5": {
+            "mean": 0.0083,
+            "ci95": [
+              0.0014,
+              0.0178
+            ]
+          },
+          "recall@10": {
+            "mean": 0.0083,
+            "ci95": [
+              0.0014,
+              0.0178
+            ]
+          },
+          "recall@20": {
+            "mean": 0.0083,
+            "ci95": [
+              0.0014,
+              0.0178
+            ]
+          },
+          "norm_recall@5": {
+            "mean": 0.0095,
+            "ci95": [
+              0.0024,
+              0.0186
+            ]
+          },
+          "norm_recall@10": {
+            "mean": 0.0085,
+            "ci95": [
+              0.0018,
+              0.0181
+            ]
+          },
+          "norm_recall@20": {
+            "mean": 0.0083,
+            "ci95": [
+              0.0015,
+              0.0178
+            ]
+          },
+          "precision@5": {
+            "mean": 0.0047,
+            "ci95": [
+              0.0012,
+              0.0086
+            ]
+          },
+          "precision@10": {
+            "mean": 0.0024,
+            "ci95": [
+              0.0006,
+              0.0043
+            ]
+          },
+          "mrr": {
+            "mean": 0.0163,
+            "ci95": [
+              0.0056,
+              0.0291
+            ]
+          },
+          "ndcg@10": {
+            "mean": 0.0099,
+            "ci95": [
+              0.0026,
+              0.0194
+            ]
+          }
+        }
+      }
+    },
+    "fts_or": {
+      "latency_ms_p50": 8.6744,
+      "queries_short_of_20_parents": 0,
+      "metrics": {
+        "subcat": {
+          "recall@5": {
+            "mean": 0.3429,
+            "ci95": [
+              0.2657,
+              0.4172
+            ]
+          },
+          "recall@10": {
+            "mean": 0.4195,
+            "ci95": [
+              0.3398,
+              0.4955
+            ]
+          },
+          "recall@20": {
+            "mean": 0.5265,
+            "ci95": [
+              0.4543,
+              0.6015
+            ]
+          },
+          "norm_recall@5": {
+            "mean": 0.4153,
+            "ci95": [
+              0.3337,
+              0.4902
+            ]
+          },
+          "norm_recall@10": {
+            "mean": 0.4528,
+            "ci95": [
+              0.3757,
+              0.5256
+            ]
+          },
+          "norm_recall@20": {
+            "mean": 0.5377,
+            "ci95": [
+              0.4626,
+              0.6125
+            ]
+          },
+          "precision@5": {
+            "mean": 0.272,
+            "ci95": [
+              0.2213,
+              0.32
+            ]
+          },
+          "precision@10": {
+            "mean": 0.188,
+            "ci95": [
+              0.1533,
+              0.2213
+            ]
+          },
+          "mrr": {
+            "mean": 0.544,
+            "ci95": [
+              0.4571,
+              0.6315
+            ]
+          },
+          "ndcg@10": {
+            "mean": 0.3976,
+            "ci95": [
+              0.3346,
+              0.4615
+            ]
+          }
+        },
+        "example": {
+          "recall@5": {
+            "mean": 0.2035,
+            "ci95": [
+              0.1637,
+              0.2477
+            ]
+          },
+          "recall@10": {
+            "mean": 0.2772,
+            "ci95": [
+              0.233,
+              0.3252
+            ]
+          },
+          "recall@20": {
+            "mean": 0.3971,
+            "ci95": [
+              0.3471,
+              0.4523
+            ]
+          },
+          "norm_recall@5": {
+            "mean": 0.2845,
+            "ci95": [
+              0.2322,
+              0.345
+            ]
+          },
+          "norm_recall@10": {
+            "mean": 0.3152,
+            "ci95": [
+              0.2683,
+              0.3703
+            ]
+          },
+          "norm_recall@20": {
+            "mean": 0.4089,
+            "ci95": [
+              0.3593,
+              0.4647
+            ]
+          },
+          "precision@5": {
+            "mean": 0.2213,
+            "ci95": [
+              0.1744,
+              0.2726
+            ]
+          },
+          "precision@10": {
+            "mean": 0.165,
+            "ci95": [
+              0.1293,
+              0.2043
+            ]
+          },
+          "mrr": {
+            "mean": 0.4329,
+            "ci95": [
+              0.3567,
+              0.5108
+            ]
+          },
+          "ndcg@10": {
+            "mean": 0.2843,
+            "ci95": [
+              0.2379,
+              0.336
+            ]
+          }
+        },
+        "all": {
+          "recall@5": {
+            "mean": 0.2344,
+            "ci95": [
+              0.1894,
+              0.2821
+            ]
+          },
+          "recall@10": {
+            "mean": 0.3088,
+            "ci95": [
+              0.2613,
+              0.3599
+            ]
+          },
+          "recall@20": {
+            "mean": 0.4258,
+            "ci95": [
+              0.3717,
+              0.4828
+            ]
+          },
+          "norm_recall@5": {
+            "mean": 0.3136,
+            "ci95": [
+              0.262,
+              0.3734
+            ]
+          },
+          "norm_recall@10": {
+            "mean": 0.3457,
+            "ci95": [
+              0.2967,
+              0.4009
+            ]
+          },
+          "norm_recall@20": {
+            "mean": 0.4375,
+            "ci95": [
+              0.3849,
+              0.4938
+            ]
+          },
+          "precision@5": {
+            "mean": 0.2325,
+            "ci95": [
+              0.1874,
+              0.2805
+            ]
+          },
+          "precision@10": {
+            "mean": 0.1701,
+            "ci95": [
+              0.1365,
+              0.207
+            ]
+          },
+          "mrr": {
+            "mean": 0.4576,
+            "ci95": [
+              0.3862,
+              0.5306
+            ]
+          },
+          "ndcg@10": {
+            "mean": 0.3094,
+            "ci95": [
+              0.2618,
+              0.3618
+            ]
+          }
+        }
+      }
+    },
+    "bm25": {
+      "latency_ms_p50": 1.6924,
+      "queries_short_of_20_parents": 0,
+      "metrics": {
+        "subcat": {
+          "recall@5": {
+            "mean": 0.3403,
+            "ci95": [
+              0.2696,
+              0.4173
+            ]
+          },
+          "recall@10": {
+            "mean": 0.461,
+            "ci95": [
+              0.3906,
+              0.538
+            ]
+          },
+          "recall@20": {
+            "mean": 0.5637,
+            "ci95": [
+              0.4952,
+              0.6358
+            ]
+          },
+          "norm_recall@5": {
+            "mean": 0.4142,
+            "ci95": [
+              0.3457,
+              0.4889
+            ]
+          },
+          "norm_recall@10": {
+            "mean": 0.4907,
+            "ci95": [
+              0.4256,
+              0.5629
+            ]
+          },
+          "norm_recall@20": {
+            "mean": 0.5724,
+            "ci95": [
+              0.5081,
+              0.6398
+            ]
+          },
+          "precision@5": {
+            "mean": 0.2693,
+            "ci95": [
+              0.2239,
+              0.3173
+            ]
+          },
+          "precision@10": {
+            "mean": 0.2027,
+            "ci95": [
+              0.172,
+              0.2333
+            ]
+          },
+          "mrr": {
+            "mean": 0.5332,
+            "ci95": [
+              0.4502,
+              0.6156
+            ]
+          },
+          "ndcg@10": {
+            "mean": 0.4079,
+            "ci95": [
+              0.3486,
+              0.4732
+            ]
+          }
+        },
+        "example": {
+          "recall@5": {
+            "mean": 0.2486,
+            "ci95": [
+              0.1987,
+              0.3063
+            ]
+          },
+          "recall@10": {
+            "mean": 0.346,
+            "ci95": [
+              0.2905,
+              0.4081
+            ]
+          },
+          "recall@20": {
+            "mean": 0.4665,
+            "ci95": [
+              0.409,
+              0.5302
+            ]
+          },
+          "norm_recall@5": {
+            "mean": 0.311,
+            "ci95": [
+              0.2595,
+              0.3673
+            ]
+          },
+          "norm_recall@10": {
+            "mean": 0.3736,
+            "ci95": [
+              0.3218,
+              0.4339
+            ]
+          },
+          "norm_recall@20": {
+            "mean": 0.4761,
+            "ci95": [
+              0.4219,
+              0.5388
+            ]
+          },
+          "precision@5": {
+            "mean": 0.2061,
+            "ci95": [
+              0.1752,
+              0.2384
+            ]
+          },
+          "precision@10": {
+            "mean": 0.1639,
+            "ci95": [
+              0.1384,
+              0.1898
+            ]
+          },
+          "mrr": {
+            "mean": 0.459,
+            "ci95": [
+              0.402,
+              0.5192
+            ]
+          },
+          "ndcg@10": {
+            "mean": 0.3159,
+            "ci95": [
+              0.2735,
+              0.3616
+            ]
+          }
+        },
+        "all": {
+          "recall@5": {
+            "mean": 0.2689,
+            "ci95": [
+              0.2194,
+              0.3264
+            ]
+          },
+          "recall@10": {
+            "mean": 0.3716,
+            "ci95": [
+              0.3165,
+              0.4327
+            ]
+          },
+          "recall@20": {
+            "mean": 0.4881,
+            "ci95": [
+              0.4332,
+              0.5501
+            ]
+          },
+          "norm_recall@5": {
+            "mean": 0.3339,
+            "ci95": [
+              0.2838,
+              0.386
+            ]
+          },
+          "norm_recall@10": {
+            "mean": 0.3995,
+            "ci95": [
+              0.3475,
+              0.4584
+            ]
+          },
+          "norm_recall@20": {
+            "mean": 0.4974,
+            "ci95": [
+              0.4435,
+              0.5561
+            ]
+          },
+          "precision@5": {
+            "mean": 0.2201,
+            "ci95": [
+              0.19,
+              0.2518
+            ]
+          },
+          "precision@10": {
+            "mean": 0.1725,
+            "ci95": [
+              0.1482,
+              0.197
+            ]
+          },
+          "mrr": {
+            "mean": 0.4754,
+            "ci95": [
+              0.4236,
+              0.5315
+            ]
+          },
+          "ndcg@10": {
+            "mean": 0.3363,
+            "ci95": [
+              0.2947,
+              0.3802
+            ]
+          }
+        }
+      }
+    },
+    "dense": {
+      "latency_ms_p50": 2.4787,
+      "queries_short_of_20_parents": 0,
+      "metrics": {
+        "subcat": {
+          "recall@5": {
+            "mean": 0.3867,
+            "ci95": [
+              0.3094,
+              0.461
+            ]
+          },
+          "recall@10": {
+            "mean": 0.5014,
+            "ci95": [
+              0.4226,
+              0.5769
+            ]
+          },
+          "recall@20": {
+            "mean": 0.6348,
+            "ci95": [
+              0.566,
+              0.7031
+            ]
+          },
+          "norm_recall@5": {
+            "mean": 0.4662,
+            "ci95": [
+              0.3919,
+              0.5376
+            ]
+          },
+          "norm_recall@10": {
+            "mean": 0.5355,
+            "ci95": [
+              0.4614,
+              0.6109
+            ]
+          },
+          "norm_recall@20": {
+            "mean": 0.6449,
+            "ci95": [
+              0.5794,
+              0.7104
+            ]
+          },
+          "precision@5": {
+            "mean": 0.3013,
+            "ci95": [
+              0.2533,
+              0.3467
+            ]
+          },
+          "precision@10": {
+            "mean": 0.2213,
+            "ci95": [
+              0.188,
+              0.2547
+            ]
+          },
+          "mrr": {
+            "mean": 0.6603,
+            "ci95": [
+              0.5787,
+              0.7403
+            ]
+          },
+          "ndcg@10": {
+            "mean": 0.4799,
+            "ci95": [
+              0.4175,
+              0.5434
+            ]
+          }
+        },
+        "example": {
+          "recall@5": {
+            "mean": 0.2792,
+            "ci95": [
+              0.2326,
+              0.332
+            ]
+          },
+          "recall@10": {
+            "mean": 0.3969,
+            "ci95": [
+              0.342,
+              0.4585
+            ]
+          },
+          "recall@20": {
+            "mean": 0.5088,
+            "ci95": [
+              0.4517,
+              0.5719
+            ]
+          },
+          "norm_recall@5": {
+            "mean": 0.352,
+            "ci95": [
+              0.3087,
+              0.398
+            ]
+          },
+          "norm_recall@10": {
+            "mean": 0.429,
+            "ci95": [
+              0.3816,
+              0.4843
+            ]
+          },
+          "norm_recall@20": {
+            "mean": 0.5205,
+            "ci95": [
+              0.4666,
+              0.5813
+            ]
+          },
+          "precision@5": {
+            "mean": 0.2563,
+            "ci95": [
+              0.2236,
+              0.2883
+            ]
+          },
+          "precision@10": {
+            "mean": 0.1973,
+            "ci95": [
+              0.1705,
+              0.2225
+            ]
+          },
+          "mrr": {
+            "mean": 0.5236,
+            "ci95": [
+              0.4678,
+              0.5779
+            ]
+          },
+          "ndcg@10": {
+            "mean": 0.3729,
+            "ci95": [
+              0.3327,
+              0.4155
+            ]
+          }
+        },
+        "all": {
+          "recall@5": {
+            "mean": 0.303,
+            "ci95": [
+              0.2524,
+              0.3559
+            ]
+          },
+          "recall@10": {
+            "mean": 0.4201,
+            "ci95": [
+              0.3634,
+              0.4791
+            ]
+          },
+          "recall@20": {
+            "mean": 0.5368,
+            "ci95": [
+              0.4794,
+              0.598
+            ]
+          },
+          "norm_recall@5": {
+            "mean": 0.3774,
+            "ci95": [
+              0.3313,
+              0.4244
+            ]
+          },
+          "norm_recall@10": {
+            "mean": 0.4526,
+            "ci95": [
+              0.4052,
+              0.5081
+            ]
+          },
+          "norm_recall@20": {
+            "mean": 0.5481,
+            "ci95": [
+              0.4973,
+              0.607
+            ]
+          },
+          "precision@5": {
+            "mean": 0.2663,
+            "ci95": [
+              0.2328,
+              0.2985
+            ]
+          },
+          "precision@10": {
+            "mean": 0.2027,
+            "ci95": [
+              0.1757,
+              0.2271
+            ]
+          },
+          "mrr": {
+            "mean": 0.554,
+            "ci95": [
+              0.5004,
+              0.6064
+            ]
+          },
+          "ndcg@10": {
+            "mean": 0.3966,
+            "ci95": [
+              0.3562,
+              0.4371
+            ]
+          }
+        }
+      }
+    }
+  },
+  "primary_metric": "recall@10",
+  "comparisons": [
+    {
+      "a": "fts_or",
+      "b": "fts_and",
+      "subcat": {
+        "mean": 0.3887,
+        "ci95": [
+          0.3089,
+          0.4648
+        ]
+      },
+      "example": {
+        "mean": 0.2754,
+        "ci95": [
+          0.2311,
+          0.3233
+        ]
+      },
+      "all": {
+        "mean": 0.3005,
+        "ci95": [
+          0.2548,
+          0.3529
+        ]
+      }
+    },
+    {
+      "a": "bm25",
+      "b": "fts_or",
+      "subcat": {
+        "mean": 0.0415,
+        "ci95": [
+          -0.018,
+          0.1079
+        ]
+      },
+      "example": {
+        "mean": 0.0688,
+        "ci95": [
+          0.0127,
+          0.1262
+        ]
+      },
+      "all": {
+        "mean": 0.0627,
+        "ci95": [
+          0.0125,
+          0.1156
+        ]
+      }
+    },
+    {
+      "a": "dense",
+      "b": "bm25",
+      "subcat": {
+        "mean": 0.0404,
+        "ci95": [
+          -0.0151,
+          0.0961
+        ]
+      },
+      "example": {
+        "mean": 0.0508,
+        "ci95": [
+          0.0142,
+          0.0866
+        ]
+      },
+      "all": {
+        "mean": 0.0485,
+        "ci95": [
+          0.0171,
+          0.0806
+        ]
+      }
+    }
+  ],
+  "dense_vs_bm25_disagreements": [
+    {
+      "query": "GV.RR-03",
+      "text": "Adequate resources are allocated commensurate with the cybersecurity risk strategy, roles, responsibilities, and policies",
+      "gold": [
+        "pm-3"
+      ],
+      "found_by": "dense",
+      "dense_top5": [
+        "sa-2",
+        "pm-8",
+        "pm-3",
+        "sr-5",
+        "sa-24"
+      ],
+      "bm25_top5": [
+        "sa-2",
+        "pm-30",
+        "si-4",
+        "ps-2",
+        "ir-1"
+      ],
+      "bm25_best_gold_chunk": "C:pm-3",
+      "query_lexemes_in_it": {
+        "resourc": 5,
+        "polici": 1
+      }
+    },
+    {
+      "query": "GV.RR-03/ex2",
+      "text": "Identify resource allocation and investment in line with risk tolerance and response",
+      "gold": [
+        "pm-3"
+      ],
+      "found_by": "bm25",
+      "dense_top5": [
+        "ra-7",
+        "sa-2",
+        "sc-6",
+        "pm-28",
+        "sr-3"
+      ],
+      "bm25_top5": [
+        "sa-2",
+        "pm-3",
+        "ra-7",
+        "pm-28",
+        "ca-7"
+      ],
+      "bm25_best_gold_chunk": "C:pm-3",
+      "query_lexemes_in_it": {
+        "resourc": 5,
+        "invest": 4
+      }
+    },
+    {
+      "query": "GV.RR-03/ex3",
+      "text": "Provide adequate and sufficient people, process, and technical resources to support the cybersecurity strategy",
+      "gold": [
+        "pm-3"
+      ],
+      "found_by": "dense",
+      "dense_top5": [
+        "pm-3",
+        "cp-2",
+        "sa-2",
+        "sr-5",
+        "pm-8"
+      ],
+      "bm25_top5": [
+        "ac-3",
+        "sa-8",
+        "cp-2",
+        "ir-4",
+        "ra-3"
+      ],
+      "bm25_best_gold_chunk": "C:pm-3",
+      "query_lexemes_in_it": {
+        "provid": 1,
+        "process": 1,
+        "resourc": 5
+      }
+    },
+    {
+      "query": "ID.RA-08/ex2",
+      "text": "Assign responsibilities and verify the execution of procedures for processing, analyzing the impact of, and responding to cybersecurity threat, vulnerability, or incident disclosures by suppliers, customers, partners, and government cybersecurity organizations",
+      "gold": [
+        "ra-5"
+      ],
+      "found_by": "bm25",
+      "dense_top5": [
+        "cm-4",
+        "ir-1",
+        "ir-4",
+        "ir-6",
+        "ca-1"
+      ],
+      "bm25_top5": [
+        "si-4",
+        "ir-4",
+        "si-5",
+        "ra-5",
+        "si-3"
+      ],
+      "bm25_best_gold_chunk": "C:ra-5",
+      "query_lexemes_in_it": {
+        "assign": 3,
+        "respons": 1,
+        "procedur": 1,
+        "process": 5,
+        "analyz": 3,
+        "impact": 2,
+        "vulner": 44,
+        "disclosur": 3,
+        "custom": 1,
+        "organ": 14
+      }
+    },
+    {
+      "query": "PR.AA-02/ex2",
+      "text": "Issue a different credential for each person (i.e., no credential sharing)",
+      "gold": [
+        "ia-12"
+      ],
+      "found_by": "bm25",
+      "dense_top5": [
+        "ia-2",
+        "ia-5",
+        "ia-4",
+        "ia-8",
+        "ac-2"
+      ],
+      "bm25_top5": [
+        "ia-8",
+        "ia-2",
+        "ia-12",
+        "pe-2",
+        "ia-5"
+      ],
+      "bm25_best_gold_chunk": "C:ia-12.4",
+      "query_lexemes_in_it": {
+        "issu": 1,
+        "credenti": 1,
+        "person": 3
+      }
+    },
+    {
+      "query": "PR.AT-02/ex3",
+      "text": "Periodically assess or test users on their understanding of cybersecurity practices for their specialized roles",
+      "gold": [
+        "at-3"
+      ],
+      "found_by": "bm25",
+      "dense_top5": [
+        "ca-2",
+        "at-2",
+        "ca-8",
+        "pm-14",
+        "sa-11"
+      ],
+      "bm25_top5": [
+        "ca-2",
+        "at-3",
+        "at-4",
+        "cp-3",
+        "ir-2"
+      ],
+      "bm25_best_gold_chunk": "C:at-3.3",
+      "query_lexemes_in_it": {
+        "assess": 1,
+        "practic": 4,
+        "role": 1
+      }
+    },
+    {
+      "query": "PR.AT-02/ex4",
+      "text": "Require annual refreshers to reinforce existing practices and introduce new practices",
+      "gold": [
+        "at-3"
+      ],
+      "found_by": "bm25",
+      "dense_top5": [
+        "si-21",
+        "sa-3",
+        "sa-15",
+        "si-14",
+        "cp-3"
+      ],
+      "bm25_top5": [
+        "at-3",
+        "at-2",
+        "ia-13",
+        "ia-2",
+        "si-3"
+      ],
+      "bm25_best_gold_chunk": "C:at-3.3",
+      "query_lexemes_in_it": {
+        "reinforc": 1,
+        "practic": 4
+      }
+    },
+    {
+      "query": "RC.CO-03/ex4",
+      "text": "Coordinate crisis communication between the organization and its critical suppliers",
+      "gold": [
+        "ir-4",
+        "ir-6",
+        "sr-8"
+      ],
+      "found_by": "dense",
+      "dense_top5": [
+        "pm-30",
+        "sc-47",
+        "ir-4",
+        "ir-6",
+        "sr-5"
+      ],
+      "bm25_top5": [
+        "cp-4",
+        "ir-3",
+        "cp-2",
+        "pm-30",
+        "sr-5"
+      ],
+      "bm25_best_gold_chunk": "C:ir-4.8",
+      "query_lexemes_in_it": {
+        "coordin": 3,
+        "organ": 8
+      }
+    }
+  ],
+  "hnsw": {
+    "default_plan": "Limit > Sort > Seq Scan",
+    "setups": [
+      {
+        "setup": "exact (index scans off)",
+        "plan": "Limit > Sort > Seq Scan",
+        "rows_returned": {
+          "min": 293,
+          "median": 293.0,
+          "max": 293
+        },
+        "chunk_recall@10_vs_exact": 1.0,
+        "recall@10_minus_exact": {
+          "mean": 0.0,
+          "ci95": [
+            0.0,
+            0.0
+          ]
+        },
+        "recall@20_minus_exact": {
+          "mean": 0.0,
+          "ci95": [
+            0.0,
+            0.0
+          ]
+        },
+        "latency_ms_p50": 2.538,
+        "queries_short_of_20_parents": 0
+      },
+      {
+        "setup": "hnsw, ef_search=40 (default)",
+        "plan": "Limit > Index Scan (chunks_embedding_hnsw_c)",
+        "rows_returned": {
+          "min": 40,
+          "median": 40.0,
+          "max": 40
+        },
+        "chunk_recall@10_vs_exact": 0.9953,
+        "recall@10_minus_exact": {
+          "mean": 0.0007,
+          "ci95": [
+            -0.0007,
+            0.0027
+          ]
+        },
+        "recall@20_minus_exact": {
+          "mean": 0.0023,
+          "ci95": [
+            -0.0005,
+            0.0057
+          ]
+        },
+        "latency_ms_p50": 1.3572,
+        "queries_short_of_20_parents": 34
+      },
+      {
+        "setup": "hnsw, ef_search=293",
+        "plan": "Limit > Index Scan (chunks_embedding_hnsw_c)",
+        "rows_returned": {
+          "min": 293,
+          "median": 293.0,
+          "max": 293
+        },
+        "chunk_recall@10_vs_exact": 1.0,
+        "recall@10_minus_exact": {
+          "mean": 0.0,
+          "ci95": [
+            0.0,
+            0.0
+          ]
+        },
+        "recall@20_minus_exact": {
+          "mean": 0.0,
+          "ci95": [
+            0.0,
+            0.0
+          ]
+        },
+        "latency_ms_p50": 2.522,
+        "queries_short_of_20_parents": 0
+      },
+      {
+        "setup": "hnsw, ef_search=1000",
+        "plan": "Limit > Index Scan (chunks_embedding_hnsw_c)",
+        "rows_returned": {
+          "min": 293,
+          "median": 293.0,
+          "max": 293
+        },
+        "chunk_recall@10_vs_exact": 1.0,
+        "recall@10_minus_exact": {
+          "mean": 0.0,
+          "ci95": [
+            0.0,
+            0.0
+          ]
+        },
+        "recall@20_minus_exact": {
+          "mean": 0.0,
+          "ci95": [
+            0.0,
+            0.0
+          ]
+        },
+        "latency_ms_p50": 2.8441,
+        "queries_short_of_20_parents": 0
+      },
+      {
+        "setup": "hnsw, ef_search=40, iterative_scan=strict_order",
+        "plan": "Limit > Index Scan (chunks_embedding_hnsw_c)",
+        "rows_returned": {
+          "min": 293,
+          "median": 293.0,
+          "max": 293
+        },
+        "chunk_recall@10_vs_exact": 0.9953,
+        "recall@10_minus_exact": {
+          "mean": 0.0007,
+          "ci95": [
+            -0.0007,
+            0.0027
+          ]
+        },
+        "recall@20_minus_exact": {
+          "mean": 0.0028,
+          "ci95": [
+            0.0002,
+            0.0062
+          ]
+        },
+        "latency_ms_p50": 2.4983,
+        "queries_short_of_20_parents": 0
+      },
+      {
+        "setup": "hnsw, ef_search=40, iterative_scan=relaxed_order",
+        "plan": "Limit > Index Scan (chunks_embedding_hnsw_c)",
+        "rows_returned": {
+          "min": 293,
+          "median": 293.0,
+          "max": 293
+        },
+        "chunk_recall@10_vs_exact": 1.0,
+        "recall@10_minus_exact": {
+          "mean": 0.0,
+          "ci95": [
+            0.0,
+            0.0
+          ]
+        },
+        "recall@20_minus_exact": {
+          "mean": 0.0,
+          "ci95": [
+            0.0,
+            0.0
+          ]
+        },
+        "latency_ms_p50": 2.4394,
+        "queries_short_of_20_parents": 0
+      }
+    ]
+  },
+  "bm25_idf_floor": {
+    "k1": 1.5,
+    "b": 0.75,
+    "epsilon": 0.25,
+    "chunks": 1014,
+    "mean_chunk_lexemes": 95.2673,
+    "mean_idf": 5.3069,
+    "floored_idf": 1.3267,
+    "floored_lexemes": {
+      "organ": 840,
+      "system": 758,
+      "defin": 693,
+      "assign": 669,
+      "organization-defin": 657,
+      "includ": 573,
+      "inform": 536
+    },
+    "rarer_lexemes_with_a_lower_idf": {
+      "use": {
+        "chunks": 468,
+        "idf": 0.154
+      },
+      "secur": {
+        "chunks": 417,
+        "idf": 0.3585
+      },
+      "provid": {
+        "chunks": 382,
+        "idf": 0.503
+      },
+      "organiz": {
+        "chunks": 381,
+        "idf": 0.5071
+      },
+      "may": {
+        "chunks": 377,
+        "idf": 0.524
+      },
+      "requir": {
+        "chunks": 362,
+        "idf": 0.5878
+      },
+      "control": {
+        "chunks": 337,
+        "idf": 0.6968
+      },
+      "implement": {
+        "chunks": 332,
+        "idf": 0.7191
+      },
+      "process": {
+        "chunks": 324,
+        "idf": 0.7551
+      },
+      "compon": {
+        "chunks": 309,
+        "idf": 0.8239
+      },
+      "b": {
+        "chunks": 289,
+        "idf": 0.9187
+      },
+      "access": {
+        "chunks": 285,
+        "idf": 0.9381
+      },
+      "individu": {
+        "chunks": 284,
+        "idf": 0.943
+      },
+      "privaci": {
+        "chunks": 266,
+        "idf": 1.0327
+      },
+      "oper": {
+        "chunks": 250,
+        "idf": 1.1158
+      },
+      "protect": {
+        "chunks": 245,
+        "idf": 1.1424
+      },
+      "identifi": {
+        "chunks": 244,
+        "idf": 1.1478
+      },
+      "manag": {
+        "chunks": 244,
+        "idf": 1.1478
+      },
+      "polici": {
+        "chunks": 218,
+        "idf": 1.2934
+      },
+      "function": {
+        "chunks": 217,
+        "idf": 1.2993
+      },
+      "risk": {
+        "chunks": 214,
+        "idf": 1.3169
+      },
+      "1": {
+        "chunks": 213,
+        "idf": 1.3228
+      },
+      "employ": {
+        "chunks": 213,
+        "idf": 1.3228
+      }
+    }
+  }
+}
