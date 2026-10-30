@@ -1,4 +1,4 @@
-.PHONY: up down reset-db schema psql test ann-demo ingest docs
+.PHONY: up down reset-db schema psql test ann-demo ingest goldset embed baselines eval docs
 
 up: .env
 	docker compose up -d --wait
@@ -32,6 +32,21 @@ ann-demo:
 ingest:
 	uv run python -m controlfinder.ingest
 	$(MAKE) docs
+
+# Rebuilds data/eval/queries.jsonl (answer key, queries, dev/test split) from the committed xlsx.
+goldset:
+	uv run python -m controlfinder.eval.goldset
+	$(MAKE) docs
+
+# Embeds every chunk. Re-run after every `make ingest`.
+embed:
+	uv run python -m controlfinder.index.embed
+
+baselines:
+	uv run python -m controlfinder.eval.baselines
+	$(MAKE) docs
+
+eval: goldset embed baselines
 
 # Regenerates every results table in docs/learn/*.md and README.md.
 docs:
