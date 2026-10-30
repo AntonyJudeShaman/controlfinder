@@ -35,6 +35,13 @@ TOKENIZER = Source(
     sha256="d241a60d5e8f04cc1b2b3e9ef7a4921b27bf526d9f6050ab90f9267a1f9e5c66",
     path=RAW / "bge-small-en-v1.5-tokenizer.json",
 )
+# The CSF 2.0 "Informative References in the Core" xlsx, downloaded 2026-10-29. Its endpoint
+# isn't versioned, so the file is committed; a fresh download with other bytes fails the check.
+CSF = Source(
+    url="https://csrc.nist.gov/extensions/nudp/services/json/csf/download?olirids=all",
+    sha256="a998dccb1eed72400fd628390e6030dcbb910b5d5850909c4c65c30005efb55e",
+    path=RAW / "csf2.xlsx",
+)
 
 
 def fetch(source: Source) -> Path:
