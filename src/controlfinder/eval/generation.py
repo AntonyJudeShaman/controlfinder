@@ -56,6 +56,17 @@ def retrieve(questions: list[Question]) -> dict[str, dict]:
     return contexts
 
 
+COVERAGE = ("base", "enhancement_only", "none")
+
+
+def gold_coverage(row: dict) -> str:
+    """What the context held of the gold controls: a base control's own chunk ('base'), only chunks
+    of their enhancements ('enhancement_only'), or nothing ('none')."""
+    if set(row["gold"]) & set(row["context"]):
+        return "base"
+    return "enhancement_only" if row["gold_in_context"] else "none"
+
+
 def answer_and_grade(q: Question, chunks: list[tuple[str, str]], generator: LLM, grader: LLM) -> dict:
     """One question's answer, its citation check and its faithfulness score, as a results row."""
     reply = generator(prompt.generation_prompt(q.question, chunks))
@@ -66,6 +77,8 @@ def answer_and_grade(q: Question, chunks: list[tuple[str, str]], generator: LLM,
            "decision": "abstain" if prompt.abstained(reply.text) else "answer", "answer": reply.text,
            "generate_ms": reply.ms, "input_tokens": reply.input_tokens, "output_tokens": reply.output_tokens,
            "generator_model": reply.model}
+    if q.answerable:
+        row["gold_coverage"] = gold_coverage(row)
     if row["decision"] == "answer":
         check = citations.check(reply.text, set(context_ids), q.gold)
         verdict = grader(judge.judge_prompt(q.question, chunks, reply.text))
@@ -162,6 +175,11 @@ def summarize(rows: list[dict]) -> dict:
                                              "abstained": sum(r["category"] == category and r["decision"] == "abstain"
                                                               for r in rows)}
                                   for category in ("answerable", *UNANSWERABLE)},
+        "answerable_by_gold_coverage": {
+            coverage: {"questions": len(group), "refused": sum(r["decision"] == "abstain" for r in group),
+                       "answered": sum(r["decision"] == "answer" for r in group),
+                       "correct": sum(r.get("correct") is True for r in group)}
+            for coverage in COVERAGE for group in [[r for r in rows if r.get("gold_coverage") == coverage]]},
     }
 
 
