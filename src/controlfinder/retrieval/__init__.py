@@ -1,7 +1,9 @@
-"""Hand-written retrievers over the chunks table: Postgres FTS, BM25 and pgvector dense search.
+"""Hand-written retrieval over the chunks table: Postgres FTS, BM25 and pgvector dense search,
+then RRF fusion and cross-encoder reranking, which `pipeline` puts together.
 
-Each one returns `Hit`s, best first. There are no retrieval frameworks: FTS and vector search
-are raw SQL, and BM25 is rank_bm25 over lexemes from Postgres's own text parser.
+Each step returns `Hit`s, best first. There are no retrieval frameworks: FTS and vector search
+are raw SQL, BM25 is rank_bm25 over lexemes from Postgres's own text parser, and fusion and
+reranking are plain Python.
 """
 
 from typing import NamedTuple
