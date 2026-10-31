@@ -29,8 +29,8 @@ from controlfinder.retrieval.pipeline import Retriever
 
 STRATEGY = "C_separate"
 K = 10  # parents in the context
-GENERATOR_MODEL = ""
-JUDGE_MODEL = ""
+GENERATOR_MODEL = "claude-sonnet-5-5"
+JUDGE_MODEL = "gpt-5.6-sol"
 OUT = Path("results/generation_dev.json")
 
 
