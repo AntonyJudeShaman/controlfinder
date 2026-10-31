@@ -1,0 +1,2243 @@
+{
+  "what": "The plain pipeline (retrieve, then generate) on the dev questions, graded by code and a judge",
+  "split": "dev",
+  "questions": {
+    "all": 50,
+    "answerable": 30,
+    "unanswerable": 20
+  },
+  "retrieval": {
+    "retrieval": "dense",
+    "strategy": "C_separate",
+    "search": "exact",
+    "parents_in_context": 10
+  },
+  "generator": {
+    "provider": "cursor_agent",
+    "sdk": "cursor-sdk 1.0.37",
+    "requested_model": "claude-sonnet-5-5",
+    "models_reported": [
+      "claude-sonnet-5-5"
+    ]
+  },
+  "judge": {
+    "provider": "cursor_agent",
+    "requested_model": "gpt-5.6-sol",
+    "models_reported": [
+      "gpt-5.6-sol"
+    ]
+  },
+  "prompts": {
+    "generate_sha256": "c0aed2c6064fbc7f662f45b63d695793283c280576d92c53f505622b053a1282",
+    "judge_sha256": "50a6fe294465ae2047841da0a8e7ad74752214b3e1c393c3fe922d87c5fce9a5"
+  },
+  "bootstrap": {
+    "unit": "question",
+    "resamples": 1000,
+    "seed": 20261023,
+    "interval": "95% percentile"
+  },
+  "abstention_counts": {
+    "tp": 20,
+    "fp": 8,
+    "fn": 0,
+    "tn": 22
+  },
+  "metrics": {
+    "abstention_precision": {
+      "value": 0.7143,
+      "ci95": [
+        0.5417,
+        0.8636
+      ],
+      "undefined_resamples": 0
+    },
+    "abstention_recall": {
+      "value": 1.0,
+      "ci95": [
+        1.0,
+        1.0
+      ],
+      "undefined_resamples": 0
+    },
+    "abstention_f1": {
+      "value": 0.8333,
+      "ci95": [
+        0.7027,
+        0.9268
+      ],
+      "undefined_resamples": 0
+    },
+    "answer_rate": {
+      "value": 0.44,
+      "ci95": [
+        0.3,
+        0.58
+      ],
+      "undefined_resamples": 0
+    },
+    "citation_precision": {
+      "value": 1.0,
+      "ci95": [
+        1.0,
+        1.0
+      ],
+      "undefined_resamples": 0
+    },
+    "gold_citation_recall": {
+      "value": 0.8636,
+      "ci95": [
+        0.7221,
+        0.9737
+      ],
+      "undefined_resamples": 0
+    },
+    "answer_accuracy": {
+      "value": 0.9091,
+      "ci95": [
+        0.7726,
+        1.0
+      ],
+      "undefined_resamples": 0
+    },
+    "faithfulness": {
+      "value": 5,
+      "ci95": [
+        5.0,
+        5.0
+      ],
+      "undefined_resamples": 0
+    },
+    "gold_in_context": {
+      "value": 0.9,
+      "ci95": [
+        0.7879,
+        1.0
+      ],
+      "undefined_resamples": 0
+    }
+  },
+  "faithfulness_scores": {
+    "1": 0,
+    "2": 0,
+    "3": 0,
+    "4": 0,
+    "5": 22,
+    "unparsed": 0
+  },
+  "abstained_by_category": {
+    "answerable": {
+      "questions": 30,
+      "abstained": 8
+    },
+    "other_framework": {
+      "questions": 4,
+      "abstained": 4
+    },
+    "internal_policy": {
+      "questions": 4,
+      "abstained": 4
+    },
+    "legal": {
+      "questions": 4,
+      "abstained": 4
+    },
+    "trivia": {
+      "questions": 4,
+      "abstained": 4
+    },
+    "security_specifics": {
+      "questions": 4,
+      "abstained": 4
+    }
+  },
+  "answerable_by_gold_coverage": {
+    "base": {
+      "questions": 14,
+      "refused": 0,
+      "answered": 14,
+      "correct": 14
+    },
+    "enhancement_only": {
+      "questions": 13,
+      "refused": 7,
+      "answered": 6,
+      "correct": 6
+    },
+    "none": {
+      "questions": 3,
+      "refused": 1,
+      "answered": 2,
+      "correct": 0
+    }
+  },
+  "judge_probe": {
+    "plant": "This must be repeated at least every 47 days [{citation}].",
+    "probed": 22,
+    "skipped_detail_in_context": 0,
+    "scores": {
+      "1": 0,
+      "2": 0,
+      "3": 14,
+      "4": 8,
+      "5": 0,
+      "unparsed": 0
+    },
+    "scored_below_5": 1.0,
+    "per_question": [
+      {
+        "id": "q001",
+        "score": 3,
+        "judge_output": "SCORE: 3\nThe main claims are supported, but the requirement to repeat this every 47 days is absent from the controls."
+      },
+      {
+        "id": "q008",
+        "score": 3,
+        "judge_output": "SCORE: 3\nThe main claims are supported, but the requirement to repeat training every 47 days is absent from and contradicts the control\u2019s organization-defined frequency."
+      },
+      {
+        "id": "q012",
+        "score": 3,
+        "judge_output": "SCORE: 3\nThe main protections are supported, but the claim that they must be repeated every 47 days is unsupported."
+      },
+      {
+        "id": "q013",
+        "score": 3,
+        "judge_output": "SCORE: 3\nThe review guidance is supported, but the requirement to repeat it at least every 47 days appears nowhere in the controls."
+      },
+      {
+        "id": "q015",
+        "score": 3,
+        "judge_output": "SCORE: 3\nThe main tracking guidance is supported, but the requirement to repeat it every 47 days is not present in SI-2 or any other control."
+      },
+      {
+        "id": "q016",
+        "score": 3,
+        "judge_output": "SCORE: 3\nThe authorizing-official claims are supported, but the requirement to repeat approval every 47 days is unsupported because CA-6 leaves the update frequency organization-defined."
+      },
+      {
+        "id": "q020",
+        "score": 4,
+        "judge_output": "SCORE: 4\nAll main claims are supported, but the requirement to repeat this at least every 47 days is absent from CM-11 or any other control."
+      },
+      {
+        "id": "q026",
+        "score": 3,
+        "judge_output": "SCORE: 3\nThe main password-policy claims are supported, but the requirement to repeat it at least every 47 days is absent from the controls."
+      },
+      {
+        "id": "q029",
+        "score": 3,
+        "judge_output": "SCORE: 3\nThe main incident-response steps are supported, but the requirement to repeat the breach process every 47 days is absent from the controls."
+      },
+      {
+        "id": "q031",
+        "score": 4,
+        "judge_output": "SCORE: 4\nAll main claims are supported, but the requirement to repeat monitoring at least every 47 days is not stated in MA-2 or any other control."
+      },
+      {
+        "id": "q033",
+        "score": 3,
+        "judge_output": "SCORE: 3\nThe wiping guidance is supported, but the claim that it must be repeated every 47 days is unsupported."
+      },
+      {
+        "id": "q034",
+        "score": 3,
+        "judge_output": "SCORE: 3\nThe main recommendation is supported, but the claim that it must be repeated every 47 days is absent from the controls."
+      },
+      {
+        "id": "q035",
+        "score": 4,
+        "judge_output": "SCORE: 4\nThe main claims are supported by PE-3(1), but the requirement to repeat this every 47 days is unsupported."
+      },
+      {
+        "id": "q037",
+        "score": 3,
+        "judge_output": "SCORE: 3\nThe required plan contents are supported by PL-2, but the claim that this must be repeated at least every 47 days is unsupported because the review frequency is organization-defined."
+      },
+      {
+        "id": "q039",
+        "score": 4,
+        "judge_output": "SCORE: 4\nAll main claims are supported, but the requirement to repeat the appointment every 47 days is absent from PM-2 and all other controls."
+      },
+      {
+        "id": "q040",
+        "score": 3,
+        "judge_output": "SCORE: 3\nThe main recommendation and program elements are supported, but the requirement to repeat it every 47 days is not in PM-12 or any other control."
+      },
+      {
+        "id": "q041",
+        "score": 3,
+        "judge_output": "SCORE: 3\nThe main guidance is supported, but the requirement to repeat it every 47 days is absent from the controls."
+      },
+      {
+        "id": "q045",
+        "score": 4,
+        "judge_output": "SCORE: 4\nAll main claims are supported by PT-5, but the required 47-day repetition interval is unsupported because the frequency is organization-defined."
+      },
+      {
+        "id": "q048",
+        "score": 4,
+        "judge_output": "SCORE: 4\nAll main claims are supported by RA-3, but the requirement to repeat the assessment at least every 47 days is unsupported because the frequency is organization-defined."
+      },
+      {
+        "id": "q049",
+        "score": 4,
+        "judge_output": "SCORE: 4\nAll main claims are supported, but the requirement to repeat this every 47 days is not found in SA-4 or any other control."
+      },
+      {
+        "id": "q051",
+        "score": 4,
+        "judge_output": "SCORE: 4\nAll main claims are supported, but the requirement to repeat testing at least every 47 days is not present in the controls."
+      },
+      {
+        "id": "q052",
+        "score": 3,
+        "judge_output": "SCORE: 3\nThe encryption guidance is supported, but the requirement to repeat it every 47 days is not present in any control."
+      }
+    ]
+  },
+  "cost": {
+    "llm_calls_per_question": {
+      "generate": 1,
+      "judge_per_answered_question": 1
+    },
+    "latency_ms": {
+      "retrieval": {
+        "p50": 10.5795,
+        "p95": 11.9882
+      },
+      "generate": {
+        "p50": 9547.9327,
+        "p95": 13664.611
+      },
+      "retrieval_plus_generate": {
+        "p50": 9558.6014,
+        "p95": 13675.0581
+      },
+      "judge": {
+        "p50": 8448.6712,
+        "p95": 12759.0402
+      }
+    },
+    "generate_tokens_mean": {
+      "input_tokens": 5406.2,
+      "output_tokens": 278.9
+    }
+  },
+  "per_question": [
+    {
+      "id": "q001",
+      "question": "When an employee leaves the company, what should happen to their accounts and access?",
+      "category": "answerable",
+      "answerable": true,
+      "gold": [
+        "ac-2",
+        "ps-4"
+      ],
+      "context": [
+        "ps-4",
+        "ac-2.3",
+        "ps-6.3",
+        "ps-5",
+        "ir-9.4",
+        "ia-2.5",
+        "ma-5.1",
+        "au-11.1",
+        "ac-6.6",
+        "si-12.3"
+      ],
+      "gold_in_context": [
+        "ac-2",
+        "ps-4"
+      ],
+      "decision": "answer",
+      "answer": "When an employee's employment ends, system access should be disabled within an organization-defined time period, and any authenticators and credentials associated with the person should be terminated or revoked [PS-4]. The organization should also retain access to the information and systems the individual formerly controlled [PS-4]. Timely action is essential for people terminated for cause, and organizations may consider disabling accounts before the person is notified [PS-4]. Accounts that are no longer associated with a user or individual should also be disabled within an organization-defined time period [AC-2(3)]. Security-related system property, such as hardware tokens, keys, identification cards, and building passes, should be retrieved [PS-4]. Individuals may also be subject to legally binding post-employment requirements for protecting organizational information [PS-6(3)].",
+      "generate_ms": 13191.1269,
+      "input_tokens": 4562,
+      "output_tokens": 650,
+      "generator_model": "claude-sonnet-5-5",
+      "gold_coverage": "base",
+      "citations": [
+        "ps-4",
+        "ac-2.3",
+        "ps-6.3"
+      ],
+      "valid": [
+        "ps-4",
+        "ac-2.3",
+        "ps-6.3"
+      ],
+      "gold_cited": [
+        "ac-2",
+        "ps-4"
+      ],
+      "faithfulness": 5,
+      "judge_output": "SCORE: 5\nEvery claim in the answer is directly supported by PS-4, AC-2(3), or PS-6(3).",
+      "judge_ms": 9237.3035,
+      "judge_model": "gpt-5.6-sol",
+      "gold_recall": 1.0,
+      "correct": true,
+      "retrieval_ms": 12.369
+    },
+    {
+      "id": "q005",
+      "question": "Can employees use their personal phones to read work email?",
+      "category": "answerable",
+      "answerable": true,
+      "gold": [
+        "ac-19",
+        "ac-20"
+      ],
+      "context": [
+        "ac-19.4",
+        "at-2.4",
+        "pt-5.1",
+        "sc-42.4",
+        "ps-4.2",
+        "ac-8",
+        "ac-20.5",
+        "ac-3.14",
+        "ps-6.3",
+        "au-9.6"
+      ],
+      "gold_in_context": [
+        "ac-19",
+        "ac-20"
+      ],
+      "decision": "abstain",
+      "answer": "INSUFFICIENT_EVIDENCE",
+      "generate_ms": 5931.0048,
+      "input_tokens": 5191,
+      "output_tokens": 19,
+      "generator_model": "claude-sonnet-5-5",
+      "gold_coverage": "enhancement_only",
+      "retrieval_ms": 10.7043
+    },
+    {
+      "id": "q008",
+      "question": "What security awareness training should all staff get, and how often?",
+      "category": "answerable",
+      "answerable": true,
+      "gold": [
+        "at-2"
+      ],
+      "context": [
+        "at-2",
+        "at-1",
+        "at-3.2",
+        "pm-14",
+        "pm-13",
+        "sa-16",
+        "at-4",
+        "ir-2.3",
+        "at-6",
+        "si-5"
+      ],
+      "gold_in_context": [
+        "at-2"
+      ],
+      "decision": "answer",
+      "answer": "All system users, including managers, senior executives, and contractors, should receive security and privacy literacy training [AT-2]. It is given as part of initial training for new users, then at an organization-defined frequency, and also when system changes require it or after organization-defined events [AT-2]. The controls set no specific interval. Later training must occur at a minimum frequency consistent with applicable laws, directives, regulations, and policies [AT-2].\n\nThe content covers the need for security and privacy, user actions to maintain them and to respond to suspected incidents, operations security, and handling of personally identifiable information [AT-2]. Organizations provide basic and advanced levels, including measures to test users' knowledge [AT-2]. Follow-up training may be short ad hoc sessions [AT-2]. Training activities should also be documented and monitored [AT-4].",
+      "generate_ms": 11400.5516,
+      "input_tokens": 5809,
+      "output_tokens": 763,
+      "generator_model": "claude-sonnet-5-5",
+      "gold_coverage": "base",
+      "citations": [
+        "at-2",
+        "at-4"
+      ],
+      "valid": [
+        "at-2",
+        "at-4"
+      ],
+      "gold_cited": [
+        "at-2"
+      ],
+      "faithfulness": 5,
+      "judge_output": "SCORE: 5\nEvery claim in the answer is directly supported by AT-2 or AT-4.",
+      "judge_ms": 7565.8273,
+      "judge_model": "gpt-5.6-sol",
+      "gold_recall": 1.0,
+      "correct": true,
+      "retrieval_ms": 10.8428
+    },
+    {
+      "id": "q011",
+      "question": "How long should we keep audit logs?",
+      "category": "answerable",
+      "answerable": true,
+      "gold": [
+        "au-11"
+      ],
+      "context": [
+        "au-11.1",
+        "au-5",
+        "au-4",
+        "au-9",
+        "au-16.1",
+        "pm-21",
+        "ra-5.8",
+        "au-12.1",
+        "ma-4.1",
+        "au-7"
+      ],
+      "gold_in_context": [
+        "au-11"
+      ],
+      "decision": "abstain",
+      "answer": "INSUFFICIENT_EVIDENCE",
+      "generate_ms": 13718.6195,
+      "input_tokens": 4659,
+      "output_tokens": 611,
+      "generator_model": "claude-sonnet-5-5",
+      "gold_coverage": "enhancement_only",
+      "retrieval_ms": 10.2877
+    },
+    {
+      "id": "q012",
+      "question": "How do we stop administrators from deleting or changing the logs?",
+      "category": "answerable",
+      "answerable": true,
+      "gold": [
+        "au-9"
+      ],
+      "context": [
+        "cm-5.1",
+        "au-9",
+        "sc-23.1",
+        "sc-2.1",
+        "au-12.3",
+        "ma-3.3",
+        "au-5",
+        "au-4.1",
+        "ac-6.9",
+        "ac-2.3"
+      ],
+      "gold_in_context": [
+        "au-9"
+      ],
+      "decision": "answer",
+      "answer": "To stop unauthorized deletion or modification of logs, protect audit information and audit logging tools from unauthorized access, modification, and deletion. Also alert designated personnel or roles when such activity is detected [AU-9]. This protection is technical and limits the ability to access and execute audit logging tools to authorized individuals [AU-9].\n\nYou can also transfer audit logs to a different system, component, or media than the one doing the logging [AU-4(1)]. Logging the execution of privileged functions helps detect misuse of privileges, including by authorized users [AC-6(9)].\n\nThe controls provided don't address administrators specifically, so this covers only the general protections for audit information.",
+      "generate_ms": 11243.5213,
+      "input_tokens": 4469,
+      "output_tokens": 783,
+      "generator_model": "claude-sonnet-5-5",
+      "gold_coverage": "base",
+      "citations": [
+        "au-9",
+        "au-4.1",
+        "ac-6.9"
+      ],
+      "valid": [
+        "au-9",
+        "au-4.1",
+        "ac-6.9"
+      ],
+      "gold_cited": [
+        "au-9"
+      ],
+      "faithfulness": 5,
+      "judge_output": "SCORE: 5\nEvery claim is directly supported by AU-9, AU-4(1), and AC-6(9), including the limitation regarding administrators specifically.",
+      "judge_ms": 12785.0255,
+      "judge_model": "gpt-5.6-sol",
+      "gold_recall": 1.0,
+      "correct": true,
+      "retrieval_ms": 10.5589
+    },
+    {
+      "id": "q013",
+      "question": "Who should review our logs, and what should they look for?",
+      "category": "answerable",
+      "answerable": true,
+      "gold": [
+        "au-6"
+      ],
+      "context": [
+        "ra-5.8",
+        "au-9",
+        "au-5",
+        "pe-8.1",
+        "au-6",
+        "au-13.2",
+        "ma-4.1",
+        "au-16.1",
+        "ac-6.9",
+        "ma-3"
+      ],
+      "gold_in_context": [
+        "au-6"
+      ],
+      "decision": "answer",
+      "answer": "The controls don't name who must do the review. They say the organization defines the frequency, what counts as inappropriate or unusual activity, and the personnel or roles who receive the findings [AU-6]. Findings can go to the incident response team, help desk, or security or privacy offices [AU-6]. If your organization is prohibited from reviewing and analyzing audit records or unable to, another organization granted that authority may do it [AU-6].\n\nReviewers should look for indications of inappropriate or unusual activity and its potential impact [AU-6]. They should also look at:\n- Nonlocal maintenance and diagnostic session records, to detect anomalous behavior [MA-4(1)].\n- Privileged function use, since logging and analyzing it helps detect misuse [AC-6(9)].\n- Historic logs, to see whether a newly found vulnerability was previously exploited [RA-5(8)].",
+      "generate_ms": 9575.6596,
+      "input_tokens": 4752,
+      "output_tokens": 579,
+      "generator_model": "claude-sonnet-5-5",
+      "gold_coverage": "base",
+      "citations": [
+        "au-6",
+        "ma-4.1",
+        "ac-6.9",
+        "ra-5.8"
+      ],
+      "valid": [
+        "au-6",
+        "ma-4.1",
+        "ac-6.9",
+        "ra-5.8"
+      ],
+      "gold_cited": [
+        "au-6"
+      ],
+      "faithfulness": 5,
+      "judge_output": "SCORE: 5\nEvery claim is directly supported by AU-6, MA-4(1), AC-6(9), or RA-5(8).",
+      "judge_ms": 7086.4531,
+      "judge_model": "gpt-5.6-sol",
+      "gold_recall": 1.0,
+      "correct": true,
+      "retrieval_ms": 11.1329
+    },
+    {
+      "id": "q015",
+      "question": "How should we track security findings until they're fixed?",
+      "category": "answerable",
+      "answerable": true,
+      "gold": [
+        "ca-5",
+        "pm-4"
+      ],
+      "context": [
+        "si-2",
+        "pm-14",
+        "au-13.3",
+        "ra-5.8",
+        "ac-4.31",
+        "ir-5",
+        "sr-4.2",
+        "sa-15.2",
+        "sc-30.3",
+        "ca-7.5"
+      ],
+      "gold_in_context": [],
+      "decision": "answer",
+      "answer": "Incorporate flaw remediation into your organizational configuration management process, so required remediation actions can be tracked and verified [SI-2]. This covers flaws found during assessments, continuous monitoring, incident response, and system error handling [SI-2]. Report affected systems and potential vulnerabilities to designated personnel with security and privacy responsibilities [SI-2].\n\nFor systems under development, require the developer to use security and privacy tracking tools, such as vulnerability or work item tracking systems. These support assigning, sorting, filtering, and tracking completed work items [SA-15(2)].\n\nIf a finding is an incident, track and document it, keeping records of each incident and its status [IR-5].\n\nThe controls don't prescribe a specific tracking tool or workflow beyond these points.",
+      "generate_ms": 10101.0241,
+      "input_tokens": 5339,
+      "output_tokens": 583,
+      "generator_model": "claude-sonnet-5-5",
+      "gold_coverage": "none",
+      "citations": [
+        "si-2",
+        "sa-15.2",
+        "ir-5"
+      ],
+      "valid": [
+        "si-2",
+        "sa-15.2",
+        "ir-5"
+      ],
+      "gold_cited": [],
+      "faithfulness": 5,
+      "judge_output": "SCORE: 5\nEvery claim is directly supported by SI-2, SA-15(2), and IR-5, including the statement that no specific tool or workflow is prescribed.",
+      "judge_ms": 7088.418,
+      "judge_model": "gpt-5.6-sol",
+      "gold_recall": 0.0,
+      "correct": false,
+      "retrieval_ms": 10.6791
+    },
+    {
+      "id": "q016",
+      "question": "Who should formally approve a new system going live from a security point of view?",
+      "category": "answerable",
+      "answerable": true,
+      "gold": [
+        "ca-6"
+      ],
+      "context": [
+        "sa-10.7",
+        "pl-2",
+        "ac-4.20",
+        "sa-17.6",
+        "si-6",
+        "cm-3.4",
+        "sa-8.31",
+        "ca-6",
+        "sa-9.1",
+        "sa-20"
+      ],
+      "gold_in_context": [
+        "ca-6"
+      ],
+      "decision": "answer",
+      "answer": "The authorizing official, who is a senior official assigned to that role, should formally approve the system. Before commencing operations, this official must accept the use of common controls the system inherits and authorize the system to operate [CA-6]. Authorizations are official management decisions by senior officials, and they explicitly accept the risk to organizational operations and assets, individuals, other organizations, and the Nation [CA-6]. Authorizing officials must be federal employees, since the authorization process is a federal responsibility [CA-6]. The system's security and privacy plan must also be reviewed and approved by the authorizing official or a designated representative before the plan is implemented [PL-2].",
+      "generate_ms": 10742.2248,
+      "input_tokens": 6443,
+      "output_tokens": 211,
+      "generator_model": "claude-sonnet-5-5",
+      "gold_coverage": "base",
+      "citations": [
+        "ca-6",
+        "pl-2"
+      ],
+      "valid": [
+        "ca-6",
+        "pl-2"
+      ],
+      "gold_cited": [
+        "ca-6"
+      ],
+      "faithfulness": 5,
+      "judge_output": "SCORE: 5\nEvery claim is directly supported by CA-6 or PL-2.",
+      "judge_ms": 7354.0489,
+      "judge_model": "gpt-5.6-sol",
+      "gold_recall": 1.0,
+      "correct": true,
+      "retrieval_ms": 11.431
+    },
+    {
+      "id": "q017",
+      "question": "What does CM-8 expect our asset inventory to include?",
+      "category": "answerable",
+      "answerable": true,
+      "gold": [
+        "cm-8"
+      ],
+      "context": [
+        "cm-8.2",
+        "pm-5",
+        "cp-2.8",
+        "pm-3",
+        "cm-2.2",
+        "pe-20",
+        "pm-8",
+        "cm-3.2",
+        "sa-2",
+        "cm-9"
+      ],
+      "gold_in_context": [
+        "cm-8"
+      ],
+      "decision": "abstain",
+      "answer": "INSUFFICIENT_EVIDENCE",
+      "generate_ms": 10018.6823,
+      "input_tokens": 4904,
+      "output_tokens": 188,
+      "generator_model": "claude-sonnet-5-5",
+      "gold_coverage": "enhancement_only",
+      "retrieval_ms": 12.2019
+    },
+    {
+      "id": "q020",
+      "question": "How do we stop employees from installing whatever software they want?",
+      "category": "answerable",
+      "answerable": true,
+      "gold": [
+        "cm-11",
+        "cm-7"
+      ],
+      "context": [
+        "cm-11",
+        "cm-14",
+        "cm-7.2",
+        "sc-2.1",
+        "sc-15.3",
+        "ma-3.3",
+        "sc-18.3",
+        "pe-3.5",
+        "ps-4",
+        "cm-5.6"
+      ],
+      "gold_in_context": [
+        "cm-11",
+        "cm-7"
+      ],
+      "decision": "answer",
+      "answer": "Organizations can establish policies governing software installation by users, enforce them through procedural or automated methods, and monitor compliance [CM-11]. These policies identify permitted actions, such as updates, security patches, and downloads from organization-approved \"app stores,\" and prohibited ones, such as software with unknown or suspect pedigrees or software considered potentially malicious [CM-11].\n\nOrganizations can also prevent installation of specified software and firmware components unless they are digitally signed with a certificate the organization recognizes and approves [CM-14]. Program execution can be prevented according to policies, rules of behavior, or access agreements, including by permitting or prohibiting specific programs and restricting roles that can approve execution [CM-7(2)]. Withholding system management functionality from non-privileged users' interfaces keeps administrator options away from the general user population [SC-2(1)].",
+      "generate_ms": 10789.0523,
+      "input_tokens": 4300,
+      "output_tokens": 281,
+      "generator_model": "claude-sonnet-5-5",
+      "gold_coverage": "base",
+      "citations": [
+        "cm-11",
+        "cm-14",
+        "cm-7.2",
+        "sc-2.1"
+      ],
+      "valid": [
+        "cm-11",
+        "cm-14",
+        "cm-7.2",
+        "sc-2.1"
+      ],
+      "gold_cited": [
+        "cm-11",
+        "cm-7"
+      ],
+      "faithfulness": 5,
+      "judge_output": "SCORE: 5\nEvery claim is directly supported by CM-11, CM-14, CM-7(2), or SC-2(1).",
+      "judge_ms": 9987.6657,
+      "judge_model": "gpt-5.6-sol",
+      "gold_recall": 1.0,
+      "correct": true,
+      "retrieval_ms": 10.8814
+    },
+    {
+      "id": "q025",
+      "question": "Should we require MFA for employees?",
+      "category": "answerable",
+      "answerable": true,
+      "gold": [
+        "ia-2"
+      ],
+      "context": [
+        "ia-11",
+        "ps-6.3",
+        "ia-2.5",
+        "ma-5.1",
+        "ps-4.1",
+        "sa-8.27",
+        "ia-8.2",
+        "pm-3",
+        "pm-13",
+        "ps-3.3"
+      ],
+      "gold_in_context": [
+        "ia-2"
+      ],
+      "decision": "abstain",
+      "answer": "INSUFFICIENT_EVIDENCE",
+      "generate_ms": 6612.2777,
+      "input_tokens": 4700,
+      "output_tokens": 19,
+      "generator_model": "claude-sonnet-5-5",
+      "gold_coverage": "enhancement_only",
+      "retrieval_ms": 10.31
+    },
+    {
+      "id": "q026",
+      "question": "What rules should our password policy have?",
+      "category": "answerable",
+      "answerable": true,
+      "gold": [
+        "ia-5"
+      ],
+      "context": [
+        "ia-5.1",
+        "sa-8.27",
+        "ia-11",
+        "pl-4.1",
+        "ac-24.2",
+        "ac-3.15",
+        "ia-1",
+        "ac-6.1",
+        "ia-6",
+        "ac-7"
+      ],
+      "gold_in_context": [
+        "ia-5"
+      ],
+      "decision": "answer",
+      "answer": "Password-based authentication should use a list of commonly-used, expected, or compromised passwords. Update the list at an organization-defined frequency and whenever compromise is suspected [IA-5(1)]. Check new or changed passwords against it [IA-5(1)].\n\nTransmit passwords only over cryptographically-protected channels [IA-5(1)]. Store them using an approved salted key derivation function [IA-5(1)]. Require a new password immediately after account recovery [IA-5(1)]. Allow long passwords and passphrases, including spaces and all printable characters [IA-5(1)]. Provide automated tools to help users pick strong passwords [IA-5(1)].\n\nComposition rules give marginal security benefit and reduce usability, but you may set rules such as a minimum length [IA-5(1)].\n\nObscure password feedback as users type, for example with asterisks [IA-6]. Limit consecutive invalid logon attempts and automatically respond, for example by locking the account [AC-7]. Document the policy and procedures [IA-1].",
+      "generate_ms": 14600.2344,
+      "input_tokens": 6258,
+      "output_tokens": 758,
+      "generator_model": "claude-sonnet-5-5",
+      "gold_coverage": "enhancement_only",
+      "citations": [
+        "ia-5.1",
+        "ia-6",
+        "ac-7",
+        "ia-1"
+      ],
+      "valid": [
+        "ia-5.1",
+        "ia-6",
+        "ac-7",
+        "ia-1"
+      ],
+      "gold_cited": [
+        "ia-5"
+      ],
+      "faithfulness": 5,
+      "judge_output": "SCORE: 5\nEvery claim is directly supported by the cited controls.",
+      "judge_ms": 12265.3194,
+      "judge_model": "gpt-5.6-sol",
+      "gold_recall": 1.0,
+      "correct": true,
+      "retrieval_ms": 10.0764
+    },
+    {
+      "id": "q029",
+      "question": "What steps should we follow when we detect a security incident?",
+      "category": "answerable",
+      "answerable": true,
+      "gold": [
+        "ir-4"
+      ],
+      "context": [
+        "si-7.7",
+        "ir-5",
+        "at-2.4",
+        "ir-2.3",
+        "ir-4.12",
+        "ir-8.1",
+        "si-4.7",
+        "pe-6.2",
+        "pm-14",
+        "ia-5.17"
+      ],
+      "gold_in_context": [
+        "ir-4"
+      ],
+      "decision": "answer",
+      "answer": "The controls don't give one ordered procedure, but they describe several steps.\n\n- **Notify and contain:** When suspicious events are detected, notify the designated incident response personnel and take the organization-defined least-disruptive actions to terminate the events. These actions can include requesting human responses [SI-4(7)].\n- **Track and document:** Record the incident, its status, and the information needed for forensics [IR-5].\n- **Integrate detection and response:** Feed detected unauthorized security-relevant changes into the incident response capability. This keeps events tracked, monitored, corrected, and available as historical records [SI-7(7)].\n- **Analyze afterward:** Analyze malicious code and residual artifacts, carefully and in an isolated environment. This gives insight into adversary tactics and helps develop responses to future incidents [IR-4(12)].\n- **Breaches involving personally identifiable information:** The plan should include determining whether notice is needed, assessing harm to affected individuals, and identifying applicable privacy requirements [IR-8(1)].",
+      "generate_ms": 13598.6006,
+      "input_tokens": 4680,
+      "output_tokens": 901,
+      "generator_model": "claude-sonnet-5-5",
+      "gold_coverage": "enhancement_only",
+      "citations": [
+        "si-4.7",
+        "ir-5",
+        "si-7.7",
+        "ir-4.12",
+        "ir-8.1"
+      ],
+      "valid": [
+        "si-4.7",
+        "ir-5",
+        "si-7.7",
+        "ir-4.12",
+        "ir-8.1"
+      ],
+      "gold_cited": [
+        "ir-4"
+      ],
+      "faithfulness": 5,
+      "judge_output": "SCORE: 5\nEvery claim is directly supported by the cited controls, including the qualification that they do not prescribe a single ordered procedure.",
+      "judge_ms": 9419.5025,
+      "judge_model": "gpt-5.6-sol",
+      "gold_recall": 1.0,
+      "correct": true,
+      "retrieval_ms": 10.642
+    },
+    {
+      "id": "q031",
+      "question": "How should we control remote maintenance sessions by our IT vendor?",
+      "category": "answerable",
+      "answerable": true,
+      "gold": [
+        "ma-4"
+      ],
+      "context": [
+        "ac-17.1",
+        "au-14.3",
+        "ma-4.4",
+        "ma-3",
+        "sa-9",
+        "ma-2",
+        "sr-11.2",
+        "sa-10.5",
+        "sc-23.5",
+        "ca-7.5"
+      ],
+      "gold_in_context": [
+        "ma-4"
+      ],
+      "decision": "answer",
+      "answer": "Approve and monitor all maintenance activities, including those performed remotely [MA-2]. Protect nonlocal maintenance sessions with replay-resistant authenticators, and separate them from other network sessions using physically or logically separated communications paths [MA-4(4)]. Logical separation can be achieved with encryption [MA-4(4)]. Use automated mechanisms to monitor and control remote access methods, which helps detect attacks and ensure compliance with remote access policies [AC-17(1)].\n\nIf the vendor brings its own diagnostic tools, approve, control, and monitor them, and review previously approved tools periodically [MA-3]. Because the vendor is an external provider, require it to comply with your security and privacy requirements [SA-9]. Also document oversight and roles and responsibilities, and monitor the vendor's compliance on an ongoing basis [SA-9].",
+      "generate_ms": 12891.7338,
+      "input_tokens": 4957,
+      "output_tokens": 613,
+      "generator_model": "claude-sonnet-5-5",
+      "gold_coverage": "enhancement_only",
+      "citations": [
+        "ma-2",
+        "ma-4.4",
+        "ac-17.1",
+        "ma-3",
+        "sa-9"
+      ],
+      "valid": [
+        "ma-2",
+        "ma-4.4",
+        "ac-17.1",
+        "ma-3",
+        "sa-9"
+      ],
+      "gold_cited": [
+        "ma-4"
+      ],
+      "faithfulness": 5,
+      "judge_output": "SCORE: 5\nEvery claim is directly supported by the cited controls.",
+      "judge_ms": 96571.0122,
+      "judge_model": "gpt-5.6-sol",
+      "gold_recall": 1.0,
+      "correct": true,
+      "retrieval_ms": 10.4229
+    },
+    {
+      "id": "q033",
+      "question": "How should we wipe old hard drives before we get rid of them?",
+      "category": "answerable",
+      "answerable": true,
+      "gold": [
+        "mp-6"
+      ],
+      "context": [
+        "mp-6.8",
+        "si-12.3",
+        "sr-12",
+        "si-2.6",
+        "ac-7.2",
+        "sc-28.2",
+        "si-19.3",
+        "cp-9.7",
+        "au-4.1",
+        "au-11.1"
+      ],
+      "gold_in_context": [
+        "mp-6"
+      ],
+      "decision": "answer",
+      "answer": "The controls don't prescribe one wiping method. Your organization defines the techniques and methods used for disposal [SR-12]. Disposal methods can include disk cleaning and removal of cryptographic keys [SR-12]. A purge or wipe can be done by overwriting data multiple times, or by destroying the key needed to decrypt encrypted data [MP-6(8)].\n\nDisposal also applies to copies and archived records as well as originals, including system logs that may contain personally identifiable information [SI-12(3)]. Also, if the drives contain sensitive or proprietary information, disposal presents opportunities for compromise of that data [SR-12]. Proper disposal of components also helps keep them from entering the gray market [SR-12].",
+      "generate_ms": 11601.0406,
+      "input_tokens": 4375,
+      "output_tokens": 681,
+      "generator_model": "claude-sonnet-5-5",
+      "gold_coverage": "enhancement_only",
+      "citations": [
+        "sr-12",
+        "mp-6.8",
+        "si-12.3"
+      ],
+      "valid": [
+        "sr-12",
+        "mp-6.8",
+        "si-12.3"
+      ],
+      "gold_cited": [
+        "mp-6"
+      ],
+      "faithfulness": 5,
+      "judge_output": "SCORE: 5\nEvery claim is directly supported by SR-12, MP-6(8), or SI-12(3).",
+      "judge_ms": 7351.1613,
+      "judge_model": "gpt-5.6-sol",
+      "gold_recall": 1.0,
+      "correct": true,
+      "retrieval_ms": 10.6813
+    },
+    {
+      "id": "q034",
+      "question": "Should we restrict the use of USB drives?",
+      "category": "answerable",
+      "answerable": true,
+      "gold": [
+        "mp-7"
+      ],
+      "context": [
+        "ac-20.5",
+        "mp-7",
+        "mp-6.3",
+        "mp-4.2",
+        "pe-3.4",
+        "sc-34.1",
+        "ac-19.4",
+        "mp-2",
+        "sc-43",
+        "au-9.1"
+      ],
+      "gold_in_context": [
+        "mp-7"
+      ],
+      "decision": "answer",
+      "answer": "Yes. The controls support restricting, and in some cases prohibiting, portable storage such as USB drives. MP-7 has organizations restrict or prohibit the use of defined types of system media on defined systems. Its examples include restricting or prohibiting flash drives [MP-7]. It also requires prohibiting portable storage devices that have no identifiable owner [MP-7]. Restrictions can include limiting use to approved devices or disabling the ability to write to such devices [MP-7].\n\nThe risk is real. Portable storage can come from untrustworthy sources and carry malicious code that enters systems through USB ports [MP-6(3)]. Organizations may also apply nondestructive sanitization before connecting such devices [MP-6(3)]. In addition, organization-controlled portable storage devices should be prohibited on external systems [AC-20(5)].\n\nThe controls don't say that every USB drive must be banned outright. MP-7 leaves the choice between restricting and prohibiting to the organization [MP-7].",
+      "generate_ms": 12051.052,
+      "input_tokens": 4978,
+      "output_tokens": 704,
+      "generator_model": "claude-sonnet-5-5",
+      "gold_coverage": "base",
+      "citations": [
+        "mp-7",
+        "mp-6.3",
+        "ac-20.5"
+      ],
+      "valid": [
+        "mp-7",
+        "mp-6.3",
+        "ac-20.5"
+      ],
+      "gold_cited": [
+        "mp-7"
+      ],
+      "faithfulness": 5,
+      "judge_output": "SCORE: 5\nEvery claim is supported by the cited controls and accurately reflects their scope.",
+      "judge_ms": 8709.1147,
+      "judge_model": "gpt-5.6-sol",
+      "gold_recall": 1.0,
+      "correct": true,
+      "retrieval_ms": 10.3286
+    },
+    {
+      "id": "q035",
+      "question": "How should we control who can enter our server room?",
+      "category": "answerable",
+      "answerable": true,
+      "gold": [
+        "pe-2",
+        "pe-3"
+      ],
+      "context": [
+        "ac-17.1",
+        "pe-3.1",
+        "cm-7.6",
+        "sc-2.1",
+        "pe-16",
+        "sc-7.8",
+        "ac-3.2",
+        "ac-18.4",
+        "cm-3.6",
+        "ia-5.8"
+      ],
+      "gold_in_context": [
+        "pe-3"
+      ],
+      "decision": "answer",
+      "answer": "To control who can enter your server room, enforce physical access authorizations to the system in addition to the physical access controls for the facility itself [PE-3(1)]. Apply this to the physical spaces that contain one or more system components, which your organization defines [PE-3(1)]. This gives extra physical security to areas within facilities where system components are concentrated, such as a server room [PE-3(1)].",
+      "generate_ms": 9520.2057,
+      "input_tokens": 4086,
+      "output_tokens": 278,
+      "generator_model": "claude-sonnet-5-5",
+      "gold_coverage": "enhancement_only",
+      "citations": [
+        "pe-3.1"
+      ],
+      "valid": [
+        "pe-3.1"
+      ],
+      "gold_cited": [
+        "pe-3"
+      ],
+      "faithfulness": 5,
+      "judge_output": "SCORE: 5\nEvery claim is directly supported by PE-3(1), with the server room as a fitting example of a space containing concentrated system components.",
+      "judge_ms": 7346.8563,
+      "judge_model": "gpt-5.6-sol",
+      "gold_recall": 0.5,
+      "correct": true,
+      "retrieval_ms": 10.2046
+    },
+    {
+      "id": "q036",
+      "question": "Do our servers need backup power?",
+      "category": "answerable",
+      "answerable": true,
+      "gold": [
+        "pe-11"
+      ],
+      "context": [
+        "cp-9.6",
+        "sc-5.2",
+        "sc-34.1",
+        "sc-36.2",
+        "cp-6",
+        "si-13.5",
+        "cp-10.6",
+        "sc-22",
+        "si-14.1",
+        "sa-10.6"
+      ],
+      "gold_in_context": [],
+      "decision": "abstain",
+      "answer": "INSUFFICIENT_EVIDENCE",
+      "generate_ms": 8987.3125,
+      "input_tokens": 4059,
+      "output_tokens": 19,
+      "generator_model": "claude-sonnet-5-5",
+      "gold_coverage": "none",
+      "retrieval_ms": 10.3606
+    },
+    {
+      "id": "q037",
+      "question": "What should a system security plan contain?",
+      "category": "answerable",
+      "answerable": true,
+      "gold": [
+        "pl-2"
+      ],
+      "context": [
+        "pl-2",
+        "pm-1",
+        "sa-2",
+        "sa-17.6",
+        "pl-8",
+        "cp-9",
+        "sa-4.5",
+        "sr-2",
+        "sa-3",
+        "sc-7.21"
+      ],
+      "gold_in_context": [
+        "pl-2"
+      ],
+      "decision": "answer",
+      "answer": "A system security and privacy plan should be consistent with the organization's enterprise architecture and explicitly define the system's constituent components [PL-2]. It should describe the operational context in terms of mission and business processes, and identify the individuals who fulfill system roles and responsibilities [PL-2]. It should also identify the information types processed, stored, and transmitted, and give the system's security categorization with supporting rationale [PL-2].\n\nFurther content includes specific threats of concern, privacy risk assessment results for systems processing personally identifiable information, the operational environment and dependencies, and an overview of security and privacy requirements [PL-2]. The plan should identify relevant baselines or overlays, describe controls in place or planned (with rationale for tailoring), and include risk determinations for architecture and design decisions [PL-2]. It should also cover activities needing coordination, and be reviewed and approved by the authorizing official before implementation [PL-2].",
+      "generate_ms": 7701.4438,
+      "input_tokens": 8753,
+      "output_tokens": 303,
+      "generator_model": "claude-sonnet-5-5",
+      "gold_coverage": "base",
+      "citations": [
+        "pl-2"
+      ],
+      "valid": [
+        "pl-2"
+      ],
+      "gold_cited": [
+        "pl-2"
+      ],
+      "faithfulness": 5,
+      "judge_output": "SCORE: 5\nEvery claim in the answer is directly supported by PL-2.",
+      "judge_ms": 7601.9671,
+      "judge_model": "gpt-5.6-sol",
+      "gold_recall": 1.0,
+      "correct": true,
+      "retrieval_ms": 10.3962
+    },
+    {
+      "id": "q039",
+      "question": "Do we need a dedicated security leader, like a CISO?",
+      "category": "answerable",
+      "answerable": true,
+      "gold": [
+        "pm-2"
+      ],
+      "context": [
+        "pm-2",
+        "sa-10.7",
+        "si-5",
+        "cm-3.4",
+        "ir-4.14",
+        "sc-12",
+        "pm-29",
+        "pm-12",
+        "pm-19",
+        "sa-17.6"
+      ],
+      "gold_in_context": [
+        "pm-2"
+      ],
+      "decision": "answer",
+      "answer": "Yes. The controls say to appoint a senior agency information security officer with the mission and resources to coordinate, develop, implement, and maintain an organization-wide information security program [PM-2]. Organizations may also call this official the senior information security officer or chief information security officer [PM-2]. For federal agencies, this official is the senior agency information security officer [PM-2].\n\nRelated controls name other leadership roles. A Senior Accountable Official for Risk Management is appointed to align security and privacy management with strategic, operational, and budgetary planning [PM-29]. A senior agency official for privacy is appointed to run the privacy program [PM-19].",
+      "generate_ms": 7589.3103,
+      "input_tokens": 5286,
+      "output_tokens": 207,
+      "generator_model": "claude-sonnet-5-5",
+      "gold_coverage": "base",
+      "citations": [
+        "pm-2",
+        "pm-29",
+        "pm-19"
+      ],
+      "valid": [
+        "pm-2",
+        "pm-29",
+        "pm-19"
+      ],
+      "gold_cited": [
+        "pm-2"
+      ],
+      "faithfulness": 5,
+      "judge_output": "SCORE: 5\nEvery claim is directly supported by PM-2, PM-29, or PM-19.",
+      "judge_ms": 7951.8381,
+      "judge_model": "gpt-5.6-sol",
+      "gold_recall": 1.0,
+      "correct": true,
+      "retrieval_ms": 10.4072
+    },
+    {
+      "id": "q040",
+      "question": "Should we have an insider threat program?",
+      "category": "answerable",
+      "answerable": true,
+      "gold": [
+        "pm-12"
+      ],
+      "context": [
+        "pm-12",
+        "at-2.2",
+        "ir-4.6",
+        "pm-16.1",
+        "si-20",
+        "pm-1",
+        "sc-7.9",
+        "ir-7.2",
+        "si-5",
+        "au-13.3"
+      ],
+      "gold_in_context": [
+        "pm-12"
+      ],
+      "decision": "answer",
+      "answer": "Yes. PM-12 calls for implementing an insider threat program that includes a cross-discipline insider threat incident handling team [PM-12]. Organizations that handle classified information are required to establish such programs, and the same standards can also improve the security of controlled unclassified and other information in non-national security systems [PM-12].\n\nSuch a program includes a senior official responsible for it, insider threat policies and implementation plans, awareness training for employees, and self-assessments of insider threat posture [PM-12]. Because human resources records can raise privacy concerns, a legal team and the senior agency official for privacy should take part [PM-12].\n\nRelated controls call for literacy training on recognizing and reporting potential insider threat indicators [AT-2(2)] and an incident handling capability for insider threat incidents [IR-4(6)].",
+      "generate_ms": 10842.0837,
+      "input_tokens": 5871,
+      "output_tokens": 585,
+      "generator_model": "claude-sonnet-5-5",
+      "gold_coverage": "base",
+      "citations": [
+        "pm-12",
+        "at-2.2",
+        "ir-4.6"
+      ],
+      "valid": [
+        "pm-12",
+        "at-2.2",
+        "ir-4.6"
+      ],
+      "gold_cited": [
+        "pm-12"
+      ],
+      "faithfulness": 5,
+      "judge_output": "SCORE: 5\nEvery claim is directly supported by PM-12, AT-2(2), or IR-4(6).",
+      "judge_ms": 10330.9849,
+      "judge_model": "gpt-5.6-sol",
+      "gold_recall": 1.0,
+      "correct": true,
+      "retrieval_ms": 9.9568
+    },
+    {
+      "id": "q041",
+      "question": "Can we use real customer data in our test environment?",
+      "category": "answerable",
+      "answerable": true,
+      "gold": [
+        "pm-25"
+      ],
+      "context": [
+        "sa-3.2",
+        "sa-11",
+        "ir-3.3",
+        "sr-5.2",
+        "cm-3.2",
+        "sa-15.12",
+        "si-14.1",
+        "cm-4.1",
+        "sr-4",
+        "cp-9.1"
+      ],
+      "gold_in_context": [],
+      "decision": "answer",
+      "answer": "Live customer data may be used in preproduction environments only if its use is approved, documented, and controlled, and the preproduction environment is protected at the same impact or classification level as that data [SA-3(2)]. Using live or operational data in development, test, and integration environments can create significant risks, and using personally identifiable information in testing increases the risk of unauthorized disclosure or misuse [SA-3(2)]. Organizations can reduce these risks by using test or dummy data, and risk assessment techniques can help decide whether the risk is acceptable [SA-3(2)]. Developers are also required to minimize the use of personally identifiable information in development and test environments, for example through de-identification or synthetic data [SA-15(12)]. A separate test environment should also ensure that information in the operational environment is not inadvertently transmitted to the test environment [CM-4(1)].",
+      "generate_ms": 11423.5372,
+      "input_tokens": 5392,
+      "output_tokens": 278,
+      "generator_model": "claude-sonnet-5-5",
+      "gold_coverage": "none",
+      "citations": [
+        "sa-3.2",
+        "sa-15.12",
+        "cm-4.1"
+      ],
+      "valid": [
+        "sa-3.2",
+        "sa-15.12",
+        "cm-4.1"
+      ],
+      "gold_cited": [],
+      "faithfulness": 5,
+      "judge_output": "SCORE: 5\nEvery claim is directly supported by SA-3(2), SA-15(12), or CM-4(1).",
+      "judge_ms": 8095.2016,
+      "judge_model": "gpt-5.6-sol",
+      "gold_recall": 0.0,
+      "correct": false,
+      "retrieval_ms": 10.3645
+    },
+    {
+      "id": "q042",
+      "question": "What background checks should we run on new hires?",
+      "category": "answerable",
+      "answerable": true,
+      "gold": [
+        "ps-3"
+      ],
+      "context": [
+        "ps-3.3",
+        "ps-4.1",
+        "sa-21",
+        "ps-6.3",
+        "si-4.21",
+        "pm-14",
+        "ma-5.3",
+        "si-7.1",
+        "at-2.4",
+        "ca-9.1"
+      ],
+      "gold_in_context": [
+        "ps-3"
+      ],
+      "decision": "abstain",
+      "answer": "INSUFFICIENT_EVIDENCE",
+      "generate_ms": 12002.6194,
+      "input_tokens": 4481,
+      "output_tokens": 457,
+      "generator_model": "claude-sonnet-5-5",
+      "gold_coverage": "enhancement_only",
+      "retrieval_ms": 10.2543
+    },
+    {
+      "id": "q045",
+      "question": "What should our privacy notice tell people?",
+      "category": "answerable",
+      "answerable": true,
+      "gold": [
+        "pt-5"
+      ],
+      "context": [
+        "pt-5",
+        "sc-42.4",
+        "pm-20.1",
+        "si-18.5",
+        "ac-8",
+        "au-13",
+        "pm-22",
+        "sa-15.12",
+        "ac-9.4",
+        "pt-7"
+      ],
+      "gold_in_context": [
+        "pt-5"
+      ],
+      "decision": "answer",
+      "answer": "A privacy notice should be available to individuals when they first interact with the organization and again at an organization-defined frequency [PT-5]. It should be clear, easy to understand, and written in plain language [PT-5]. It must identify the authority that authorizes the processing of personally identifiable information, and the purposes for which that information is processed [PT-5]. It should also include any organization-defined information [PT-5].\n\nBeyond those required elements, notices can tell individuals about the choices they have regarding the processing and the other parties with whom their information is shared [PT-5]. Laws, regulations, or policies may require specific elements or formats [PT-5]. Privacy risk assessments can help determine which elements to include [PT-5].",
+      "generate_ms": 8776.8837,
+      "input_tokens": 5676,
+      "output_tokens": 229,
+      "generator_model": "claude-sonnet-5-5",
+      "gold_coverage": "base",
+      "citations": [
+        "pt-5"
+      ],
+      "valid": [
+        "pt-5"
+      ],
+      "gold_cited": [
+        "pt-5"
+      ],
+      "faithfulness": 5,
+      "judge_output": "SCORE: 5\nEvery claim in the answer is directly supported by PT-5.",
+      "judge_ms": 7059.8724,
+      "judge_model": "gpt-5.6-sol",
+      "gold_recall": 1.0,
+      "correct": true,
+      "retrieval_ms": 10.6905
+    },
+    {
+      "id": "q046",
+      "question": "How often should we scan our systems for vulnerabilities?",
+      "category": "answerable",
+      "answerable": true,
+      "gold": [
+        "ra-5"
+      ],
+      "context": [
+        "ra-5.2",
+        "si-2",
+        "si-14",
+        "ca-8",
+        "ca-7.5",
+        "sr-9.1",
+        "sa-15.8",
+        "sr-10",
+        "si-10.3",
+        "si-7.1"
+      ],
+      "gold_in_context": [
+        "ra-5"
+      ],
+      "decision": "abstain",
+      "answer": "INSUFFICIENT_EVIDENCE",
+      "generate_ms": 9616.7508,
+      "input_tokens": 5946,
+      "output_tokens": 201,
+      "generator_model": "claude-sonnet-5-5",
+      "gold_coverage": "enhancement_only",
+      "retrieval_ms": 10.7722
+    },
+    {
+      "id": "q048",
+      "question": "How should we run a risk assessment for a new system?",
+      "category": "answerable",
+      "answerable": true,
+      "gold": [
+        "ra-3"
+      ],
+      "context": [
+        "ra-3",
+        "ca-2",
+        "sa-11.2",
+        "sa-9.1",
+        "ra-1",
+        "sr-5.2",
+        "sr-6",
+        "sa-15.7",
+        "cp-4.5",
+        "sr-2"
+      ],
+      "gold_in_context": [
+        "ra-3"
+      ],
+      "decision": "answer",
+      "answer": "Conduct a risk assessment that identifies threats to and vulnerabilities in the system. It should determine the likelihood and magnitude of harm from unauthorized access, use, disclosure, disruption, modification, or destruction. It should also determine the likelihood and impact of adverse effects on individuals from processing personally identifiable information [RA-3]. Integrate the results and risk management decisions from the organization and mission or business process perspectives with the system-level assessment [RA-3]. Document the results, review them at an organization-defined frequency, and disseminate them to defined personnel or roles [RA-3]. Update the assessment at a defined frequency or when significant changes occur [RA-3]. Risk assessment is ongoing throughout the system development life cycle and can begin at any stage [RA-3]. Also consider risk from external parties such as contractors and service providers [RA-3].",
+      "generate_ms": 13539.9952,
+      "input_tokens": 7975,
+      "output_tokens": 705,
+      "generator_model": "claude-sonnet-5-5",
+      "gold_coverage": "base",
+      "citations": [
+        "ra-3"
+      ],
+      "valid": [
+        "ra-3"
+      ],
+      "gold_cited": [
+        "ra-3"
+      ],
+      "faithfulness": 5,
+      "judge_output": "SCORE: 5\nEvery claim in the answer is directly supported by RA-3.",
+      "judge_ms": 9613.0991,
+      "judge_model": "gpt-5.6-sol",
+      "gold_recall": 1.0,
+      "correct": true,
+      "retrieval_ms": 10.7463
+    },
+    {
+      "id": "q049",
+      "question": "What security requirements should we put in contracts when we buy software?",
+      "category": "answerable",
+      "answerable": true,
+      "gold": [
+        "sa-4"
+      ],
+      "context": [
+        "sa-4",
+        "sa-17.2",
+        "cm-14",
+        "sa-10.6",
+        "si-7.12",
+        "cm-11",
+        "cm-10",
+        "sa-15",
+        "sr-5",
+        "pl-8.2"
+      ],
+      "gold_in_context": [
+        "sa-4"
+      ],
+      "decision": "answer",
+      "answer": "Acquisition contracts should include the following, either explicitly or by reference [SA-4]:\n\n- Security and privacy functional requirements.\n- Strength of mechanism requirements.\n- Security and privacy assurance requirements.\n- Controls needed to satisfy those requirements.\n- Security and privacy documentation requirements, plus requirements for protecting that documentation.\n- A description of the development environment and the environment where the system will operate.\n- Allocation of responsibility for information security, privacy, and supply chain risk management.\n- Acceptance criteria.\n\nOrganizations can also set other requirements, such as responsibilities for the organization and developer, and notification and timing requirements for support, maintenance, and updates [SA-4].\n\nFor supply chain protection, contracts may specify documentation protection requirements [SR-5]. Organizations can also include contract language that prohibits tainted or counterfeit components [SR-5].",
+      "generate_ms": 9326.824,
+      "input_tokens": 5565,
+      "output_tokens": 563,
+      "generator_model": "claude-sonnet-5-5",
+      "gold_coverage": "base",
+      "citations": [
+        "sa-4",
+        "sr-5"
+      ],
+      "valid": [
+        "sa-4",
+        "sr-5"
+      ],
+      "gold_cited": [
+        "sa-4"
+      ],
+      "faithfulness": 5,
+      "judge_output": "SCORE: 5\nEvery claim in the answer is directly supported by SA-4 or SR-5.",
+      "judge_ms": 8188.2277,
+      "judge_model": "gpt-5.6-sol",
+      "gold_recall": 1.0,
+      "correct": true,
+      "retrieval_ms": 10.504
+    },
+    {
+      "id": "q051",
+      "question": "How should our developers test code for security flaws before release?",
+      "category": "answerable",
+      "answerable": true,
+      "gold": [
+        "sa-11"
+      ],
+      "context": [
+        "sa-11",
+        "sa-10.1",
+        "sa-17.6",
+        "si-7.12",
+        "si-2",
+        "ca-8",
+        "si-3.6",
+        "sa-15",
+        "si-6.2",
+        "cm-3.2"
+      ],
+      "gold_in_context": [
+        "sa-11"
+      ],
+      "decision": "answer",
+      "answer": "Developers should follow a plan for ongoing security and privacy control assessments at all post-design stages of the development life cycle [SA-11]. They should perform unit, integration, system, or regression testing at an organization-defined frequency, depth, and coverage [SA-11]. For custom software, approaches can include manual code review, security architecture review, penetration testing, and static, dynamic, or binary analysis, or a hybrid of the three [SA-11]. Developers can also use security instrumentation and fuzzing [SA-11]. They should produce evidence of the assessment plan's execution and the test results, implement a verifiable flaw remediation process, and correct the flaws found [SA-11]. Structuring security-relevant hardware, software, and firmware to facilitate testing supports more complete and consistent testing [SA-17(6)]. Penetration testing can also be conducted at an organization-defined frequency on defined systems or components [CA-8].",
+      "generate_ms": 14037.3798,
+      "input_tokens": 6035,
+      "output_tokens": 744,
+      "generator_model": "claude-sonnet-5-5",
+      "gold_coverage": "base",
+      "citations": [
+        "sa-11",
+        "sa-17.6",
+        "ca-8"
+      ],
+      "valid": [
+        "sa-11",
+        "sa-17.6",
+        "ca-8"
+      ],
+      "gold_cited": [
+        "sa-11"
+      ],
+      "faithfulness": 5,
+      "judge_output": "SCORE: 5\nEvery claim is directly supported by SA-11, SA-17(6), or CA-8.",
+      "judge_ms": 9272.6016,
+      "judge_model": "gpt-5.6-sol",
+      "gold_recall": 1.0,
+      "correct": true,
+      "retrieval_ms": 10.3597
+    },
+    {
+      "id": "q052",
+      "question": "How should we encrypt data sent over the network?",
+      "category": "answerable",
+      "answerable": true,
+      "gold": [
+        "sc-13",
+        "sc-8"
+      ],
+      "context": [
+        "ac-17.2",
+        "sc-8.1",
+        "si-20",
+        "ac-18.1",
+        "cp-9.8",
+        "si-4.10",
+        "sc-28.1",
+        "sc-4",
+        "ac-4.24",
+        "sc-7.10"
+      ],
+      "gold_in_context": [
+        "sc-8"
+      ],
+      "decision": "answer",
+      "answer": "Implement cryptographic mechanisms to prevent unauthorized disclosure of information, detect changes to information, or both, during transmission [SC-8(1)]. Encryption protects information from unauthorized disclosure and modification in transit, and the cryptographic mechanisms that do this include TLS and IPSec [SC-8(1)]. Integrity can also be protected with cryptographic hash functions, which are used in digital signatures, checksums, and message authentication codes [SC-8(1)].\n\nFor remote access sessions specifically, use cryptographic mechanisms to protect confidentiality and integrity [AC-17(2)]. Virtual private networks can serve this purpose, and TLS is an example of a cryptographic protocol that provides end-to-end communications security over networks [AC-17(2)].\n\nFor wireless access, protect it with authentication of users and devices plus encryption [AC-18(1)].\n\nOrganizations should also balance encrypting traffic against keeping it visible to monitoring tools [SI-4(10)].",
+      "generate_ms": 10335.1639,
+      "input_tokens": 4635,
+      "output_tokens": 335,
+      "generator_model": "claude-sonnet-5-5",
+      "gold_coverage": "enhancement_only",
+      "citations": [
+        "sc-8.1",
+        "ac-17.2",
+        "ac-18.1",
+        "si-4.10"
+      ],
+      "valid": [
+        "sc-8.1",
+        "ac-17.2",
+        "ac-18.1",
+        "si-4.10"
+      ],
+      "gold_cited": [
+        "sc-8"
+      ],
+      "faithfulness": 5,
+      "judge_output": "SCORE: 5\nEvery claim is directly supported by the cited controls.",
+      "judge_ms": 11546.6153,
+      "judge_model": "gpt-5.6-sol",
+      "gold_recall": 0.5,
+      "correct": true,
+      "retrieval_ms": 10.3951
+    },
+    {
+      "id": "q057",
+      "question": "What anti-malware protection do we need?",
+      "category": "answerable",
+      "answerable": true,
+      "gold": [
+        "si-3"
+      ],
+      "context": [
+        "si-3.4",
+        "sr-9",
+        "si-7.10",
+        "si-8.3",
+        "pe-3.5",
+        "sc-5.3",
+        "sc-7.12",
+        "cp-10.6",
+        "sc-51",
+        "sa-17.2"
+      ],
+      "gold_in_context": [
+        "si-3"
+      ],
+      "decision": "abstain",
+      "answer": "INSUFFICIENT_EVIDENCE",
+      "generate_ms": 10141.012,
+      "input_tokens": 4003,
+      "output_tokens": 317,
+      "generator_model": "claude-sonnet-5-5",
+      "gold_coverage": "enhancement_only",
+      "retrieval_ms": 10.2027
+    },
+    {
+      "id": "q065",
+      "question": "Which section of the HIPAA Security Rule covers audit controls?",
+      "category": "other_framework",
+      "answerable": false,
+      "gold": [],
+      "context": [
+        "ac-3.10",
+        "au-9.4",
+        "au-6.7",
+        "sa-8.22",
+        "sa-17.7",
+        "pt-6.2",
+        "ac-17.1",
+        "ir-9.4",
+        "pm-17",
+        "pm-1"
+      ],
+      "gold_in_context": [],
+      "decision": "abstain",
+      "answer": "INSUFFICIENT_EVIDENCE",
+      "generate_ms": 10552.3276,
+      "input_tokens": 5707,
+      "output_tokens": 19,
+      "generator_model": "claude-sonnet-5-5",
+      "retrieval_ms": 10.7085
+    },
+    {
+      "id": "q066",
+      "question": "What is CIS Critical Security Control 18 about?",
+      "category": "other_framework",
+      "answerable": false,
+      "gold": [],
+      "context": [
+        "sc-38",
+        "ir-4.14",
+        "si-5",
+        "cp-2.8",
+        "sr-7",
+        "sa-17",
+        "pm-1",
+        "cp-9.3",
+        "si-4.17",
+        "sa-20"
+      ],
+      "gold_in_context": [],
+      "decision": "abstain",
+      "answer": "INSUFFICIENT_EVIDENCE",
+      "generate_ms": 8011.3368,
+      "input_tokens": 6334,
+      "output_tokens": 19,
+      "generator_model": "claude-sonnet-5-5",
+      "retrieval_ms": 10.3851
+    },
+    {
+      "id": "q067",
+      "question": "How many practices does CMMC Level 2 have?",
+      "category": "other_framework",
+      "answerable": false,
+      "gold": [],
+      "context": [
+        "at-2",
+        "pl-9",
+        "ca-2",
+        "cm-1",
+        "ca-7",
+        "cm-2.2",
+        "pm-31",
+        "mp-1",
+        "cm-3.2",
+        "sc-12"
+      ],
+      "gold_in_context": [],
+      "decision": "abstain",
+      "answer": "INSUFFICIENT_EVIDENCE",
+      "generate_ms": 7727.6007,
+      "input_tokens": 9487,
+      "output_tokens": 19,
+      "generator_model": "claude-sonnet-5-5",
+      "retrieval_ms": 10.2607
+    },
+    {
+      "id": "q068",
+      "question": "What does the OWASP Top 10 category A01:2021 cover?",
+      "category": "other_framework",
+      "answerable": false,
+      "gold": [],
+      "context": [
+        "au-13.2",
+        "ir-7.2",
+        "ra-2.1",
+        "pe-21",
+        "sa-10.7",
+        "pm-1",
+        "ac-23",
+        "au-6.3",
+        "pm-16",
+        "pm-8"
+      ],
+      "gold_in_context": [],
+      "decision": "abstain",
+      "answer": "INSUFFICIENT_EVIDENCE",
+      "generate_ms": 7441.2749,
+      "input_tokens": 5706,
+      "output_tokens": 19,
+      "generator_model": "claude-sonnet-5-5",
+      "retrieval_ms": 10.7141
+    },
+    {
+      "id": "q069",
+      "question": "What is our company's password rotation policy?",
+      "category": "internal_policy",
+      "answerable": false,
+      "gold": [],
+      "context": [
+        "ia-5.1",
+        "sa-10.4",
+        "ia-11",
+        "cm-6.2",
+        "sa-8.23",
+        "ia-6",
+        "ac-7.4",
+        "ia-10",
+        "cm-3.5",
+        "at-2"
+      ],
+      "gold_in_context": [],
+      "decision": "abstain",
+      "answer": "INSUFFICIENT_EVIDENCE",
+      "generate_ms": 7515.5255,
+      "input_tokens": 5782,
+      "output_tokens": 19,
+      "generator_model": "claude-sonnet-5-5",
+      "retrieval_ms": 10.4995
+    },
+    {
+      "id": "q070",
+      "question": "Who is our CISO?",
+      "category": "internal_policy",
+      "answerable": false,
+      "gold": [],
+      "context": [
+        "pm-19",
+        "ac-6.6",
+        "sa-10.7",
+        "pm-2",
+        "si-5",
+        "cm-3.4",
+        "ia-8",
+        "pm-20",
+        "ia-4.6",
+        "ma-5.3"
+      ],
+      "gold_in_context": [],
+      "decision": "abstain",
+      "answer": "INSUFFICIENT_EVIDENCE",
+      "generate_ms": 10351.7934,
+      "input_tokens": 4613,
+      "output_tokens": 19,
+      "generator_model": "claude-sonnet-5-5",
+      "retrieval_ms": 10.1627
+    },
+    {
+      "id": "q072",
+      "question": "What's the address of our VPN server?",
+      "category": "internal_policy",
+      "answerable": false,
+      "gold": [],
+      "context": [
+        "sc-7.8",
+        "sc-22",
+        "ac-9.4",
+        "sc-21",
+        "ia-3.3",
+        "ac-17",
+        "sc-20",
+        "cm-7.6",
+        "sc-18.5",
+        "sa-17.4"
+      ],
+      "gold_in_context": [],
+      "decision": "abstain",
+      "answer": "INSUFFICIENT_EVIDENCE",
+      "generate_ms": 6124.5982,
+      "input_tokens": 5211,
+      "output_tokens": 19,
+      "generator_model": "claude-sonnet-5-5",
+      "retrieval_ms": 10.219
+    },
+    {
+      "id": "q074",
+      "question": "How many days do we have to fix critical vulnerabilities under our patch policy?",
+      "category": "internal_policy",
+      "answerable": false,
+      "gold": [],
+      "context": [
+        "si-2",
+        "ra-5.2",
+        "ca-7.5",
+        "si-14",
+        "sa-20",
+        "sa-10.5",
+        "sa-22",
+        "sa-8.24",
+        "sc-18.3",
+        "sa-15.8"
+      ],
+      "gold_in_context": [],
+      "decision": "abstain",
+      "answer": "INSUFFICIENT_EVIDENCE",
+      "generate_ms": 7760.0453,
+      "input_tokens": 6556,
+      "output_tokens": 19,
+      "generator_model": "claude-sonnet-5-5",
+      "retrieval_ms": 10.8565
+    },
+    {
+      "id": "q078",
+      "question": "Can we be sued if a stolen laptop exposes customer data?",
+      "category": "legal",
+      "answerable": false,
+      "gold": [],
+      "context": [
+        "au-13.3",
+        "si-20",
+        "pe-3.4",
+        "sc-2.2",
+        "ac-23",
+        "ac-4.31",
+        "sc-28.2",
+        "ac-19.4",
+        "si-10.6",
+        "sc-8"
+      ],
+      "gold_in_context": [],
+      "decision": "abstain",
+      "answer": "INSUFFICIENT_EVIDENCE",
+      "generate_ms": 7310.391,
+      "input_tokens": 5153,
+      "output_tokens": 19,
+      "generator_model": "claude-sonnet-5-5",
+      "retrieval_ms": 10.7153
+    },
+    {
+      "id": "q080",
+      "question": "Does the CCPA apply to our business?",
+      "category": "legal",
+      "answerable": false,
+      "gold": [],
+      "context": [
+        "ia-5.15",
+        "ia-12.1",
+        "ia-8.2",
+        "ia-2.12",
+        "cp-2.5",
+        "sa-4.10",
+        "sa-9.4",
+        "cp-7.3",
+        "ca-6",
+        "cm-7.3"
+      ],
+      "gold_in_context": [],
+      "decision": "abstain",
+      "answer": "INSUFFICIENT_EVIDENCE",
+      "generate_ms": 7579.6905,
+      "input_tokens": 4740,
+      "output_tokens": 19,
+      "generator_model": "claude-sonnet-5-5",
+      "retrieval_ms": 10.3043
+    },
+    {
+      "id": "q082",
+      "question": "What fines can we face for violating HIPAA?",
+      "category": "legal",
+      "answerable": false,
+      "gold": [],
+      "context": [
+        "pt-6.2",
+        "ir-9.4",
+        "ir-8.1",
+        "ac-2.11",
+        "ra-5.5",
+        "pe-8.3",
+        "pt-7.2",
+        "au-14",
+        "ia-4.1",
+        "ac-8"
+      ],
+      "gold_in_context": [],
+      "decision": "abstain",
+      "answer": "INSUFFICIENT_EVIDENCE",
+      "generate_ms": 8235.3544,
+      "input_tokens": 4908,
+      "output_tokens": 19,
+      "generator_model": "claude-sonnet-5-5",
+      "retrieval_ms": 11.2611
+    },
+    {
+      "id": "q083",
+      "question": "Is a click-through acceptable use policy legally binding on employees?",
+      "category": "legal",
+      "answerable": false,
+      "gold": [],
+      "context": [
+        "pl-4.1",
+        "ac-4.9",
+        "sa-8.28",
+        "ac-3.15",
+        "ma-3.4",
+        "sc-18",
+        "ir-9.4",
+        "pm-20.1",
+        "pe-17",
+        "cm-7.2"
+      ],
+      "gold_in_context": [],
+      "decision": "abstain",
+      "answer": "INSUFFICIENT_EVIDENCE",
+      "generate_ms": 7342.4574,
+      "input_tokens": 4710,
+      "output_tokens": 19,
+      "generator_model": "claude-sonnet-5-5",
+      "retrieval_ms": 11.727
+    },
+    {
+      "id": "q085",
+      "question": "Who invented the World Wide Web?",
+      "category": "trivia",
+      "answerable": false,
+      "gold": [],
+      "context": [
+        "ac-21.2",
+        "sc-7.16",
+        "au-13.1",
+        "sc-15",
+        "sc-40.1",
+        "at-2.3",
+        "ac-18",
+        "sa-8.1",
+        "ac-4.29",
+        "sc-29"
+      ],
+      "gold_in_context": [],
+      "decision": "abstain",
+      "answer": "INSUFFICIENT_EVIDENCE",
+      "generate_ms": 7546.1641,
+      "input_tokens": 4374,
+      "output_tokens": 19,
+      "generator_model": "claude-sonnet-5-5",
+      "retrieval_ms": 10.3573
+    },
+    {
+      "id": "q086",
+      "question": "What is the capital of Australia?",
+      "category": "trivia",
+      "answerable": false,
+      "gold": [],
+      "context": [
+        "au-8",
+        "pm-8",
+        "sc-45",
+        "sa-9.8",
+        "sc-20.2",
+        "au-2",
+        "pe-18",
+        "pe-23",
+        "pl-10",
+        "cm-12"
+      ],
+      "gold_in_context": [],
+      "decision": "abstain",
+      "answer": "INSUFFICIENT_EVIDENCE",
+      "generate_ms": 8211.6459,
+      "input_tokens": 5594,
+      "output_tokens": 19,
+      "generator_model": "claude-sonnet-5-5",
+      "retrieval_ms": 10.1213
+    },
+    {
+      "id": "q090",
+      "question": "What's the best programming language for beginners?",
+      "category": "trivia",
+      "answerable": false,
+      "gold": [],
+      "context": [
+        "cm-7.8",
+        "ac-6.8",
+        "sa-11.4",
+        "sc-18",
+        "cm-10.1",
+        "sa-10.4",
+        "sa-17.5",
+        "si-10",
+        "sc-34",
+        "ma-3.6"
+      ],
+      "gold_in_context": [],
+      "decision": "abstain",
+      "answer": "INSUFFICIENT_EVIDENCE",
+      "generate_ms": 9747.5897,
+      "input_tokens": 5357,
+      "output_tokens": 19,
+      "generator_model": "claude-sonnet-5-5",
+      "retrieval_ms": 11.0658
+    },
+    {
+      "id": "q091",
+      "question": "How far is the Moon from Earth?",
+      "category": "trivia",
+      "answerable": false,
+      "gold": [],
+      "context": [
+        "sa-9.8",
+        "pe-18",
+        "ac-18.5",
+        "pe-23",
+        "cm-12",
+        "sc-48",
+        "sc-36",
+        "sc-37",
+        "au-8",
+        "si-13.3"
+      ],
+      "gold_in_context": [],
+      "decision": "abstain",
+      "answer": "INSUFFICIENT_EVIDENCE",
+      "generate_ms": 6060.3289,
+      "input_tokens": 4865,
+      "output_tokens": 19,
+      "generator_model": "claude-sonnet-5-5",
+      "retrieval_ms": 10.8554
+    },
+    {
+      "id": "q093",
+      "question": "What is the CVSS score of CVE-2021-44228, Log4Shell?",
+      "category": "security_specifics",
+      "answerable": false,
+      "gold": [],
+      "context": [
+        "sa-11",
+        "ra-5",
+        "sa-15.1",
+        "au-6",
+        "ca-8",
+        "si-4",
+        "ac-6.9",
+        "si-10",
+        "au-9.1",
+        "si-7.1"
+      ],
+      "gold_in_context": [],
+      "decision": "abstain",
+      "answer": "INSUFFICIENT_EVIDENCE",
+      "generate_ms": 8098.313,
+      "input_tokens": 8453,
+      "output_tokens": 19,
+      "generator_model": "claude-sonnet-5-5",
+      "retrieval_ms": 12.9601
+    },
+    {
+      "id": "q097",
+      "question": "Is AWS more secure than Azure?",
+      "category": "security_specifics",
+      "answerable": false,
+      "gold": [],
+      "context": [
+        "sa-8.20",
+        "ac-17.2",
+        "ia-13.1",
+        "ma-4.6",
+        "sa-17.5",
+        "cp-9.8",
+        "sc-20",
+        "sc-28.2",
+        "sc-8",
+        "sc-2.2"
+      ],
+      "gold_in_context": [],
+      "decision": "abstain",
+      "answer": "INSUFFICIENT_EVIDENCE",
+      "generate_ms": 6867.5413,
+      "input_tokens": 5233,
+      "output_tokens": 19,
+      "generator_model": "claude-sonnet-5-5",
+      "retrieval_ms": 10.7657
+    },
+    {
+      "id": "q099",
+      "question": "Which ransomware group attacked Colonial Pipeline in 2021?",
+      "category": "security_specifics",
+      "answerable": false,
+      "gold": [],
+      "context": [
+        "sc-18.3",
+        "si-4.24",
+        "pm-16",
+        "pe-19.1",
+        "ac-4.28",
+        "ma-4.6",
+        "at-2.5",
+        "au-13.3",
+        "si-7.10",
+        "sc-30.3"
+      ],
+      "gold_in_context": [],
+      "decision": "abstain",
+      "answer": "INSUFFICIENT_EVIDENCE",
+      "generate_ms": 6841.0575,
+      "input_tokens": 4678,
+      "output_tokens": 19,
+      "generator_model": "claude-sonnet-5-5",
+      "retrieval_ms": 10.6002
+    },
+    {
+      "id": "q100",
+      "question": "What is the newest version of TLS?",
+      "category": "security_specifics",
+      "answerable": false,
+      "gold": [],
+      "context": [
+        "ac-17.2",
+        "sc-23.5",
+        "sc-28.3",
+        "sa-17.4",
+        "cp-8.1",
+        "cm-7.1",
+        "sa-10.4",
+        "sa-3.3",
+        "si-8.2",
+        "sc-31.2"
+      ],
+      "gold_in_context": [],
+      "decision": "abstain",
+      "answer": "INSUFFICIENT_EVIDENCE",
+      "generate_ms": 7626.0303,
+      "input_tokens": 4710,
+      "output_tokens": 19,
+      "generator_model": "claude-sonnet-5-5",
+      "retrieval_ms": 11.6179
+    }
+  ]
+}
