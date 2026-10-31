@@ -6,6 +6,7 @@ from controlfinder.index.db import connect
 from controlfinder.retrieval import fetch_depth, fts
 from controlfinder.retrieval.bm25 import BM25Index
 from controlfinder.retrieval.dense import EXACT, plan, search
+from controlfinder.retrieval.pipeline import Retriever
 
 TEST_CHUNKS = {"T:1": "Quokka zebra habitat", "T:2": "Quokka habitat", "T:3": "Managing accounts and accounting"}
 
@@ -51,6 +52,11 @@ def test_bm25_counts_the_same_lexemes_as_the_tsv_column(conn):
 
 def test_fetch_depth_is_k_when_every_parent_has_one_chunk(conn):
     assert fetch_depth(conn, "A_control_only", 20) == 20
+
+
+def test_retriever_rolls_two_matching_chunks_up_to_one_parent(conn):
+    hits = Retriever(conn, "C_separate").search("bm25", "quokka zebras", "")
+    assert [(h.chunk_id, h.parent_control_id) for h in hits] == [("T:1", "zz-1")]
 
 
 def test_hnsw_settings_survive_an_eval_loop(embedded):
