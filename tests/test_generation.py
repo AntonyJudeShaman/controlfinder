@@ -2,12 +2,14 @@ import pytest
 
 from controlfinder.eval.bootstrap import resample_ci
 from controlfinder.eval.generation import (
+    PLANT_DETAIL,
     abstention_f1,
     abstention_precision,
     abstention_recall,
     answer_and_grade,
     citation_precision,
     counts,
+    judge_probe,
 )
 from controlfinder.eval.qa import Question
 from controlfinder.generation import citations, judge, prompt
@@ -103,6 +105,18 @@ def test_an_abstention_isnt_judged(tmp_path):
     row = answer_and_grade(question(False), CHUNKS, LLM("g", Fake("INSUFFICIENT_EVIDENCE"), tmp_path / "llm.jsonl"),
                            LLM("j", grader, tmp_path / "llm.jsonl"))
     assert row["decision"] == "abstain" and "faithfulness" not in row and grader.calls == 0
+
+
+def test_judge_probe_plants_a_claim_and_skips_contexts_that_contain_it(tmp_path):
+    answered = {"decision": "answer", "question": "How do we disable accounts?", "answer": "Disable them [AC-2(3)].",
+                "valid": ["ac-2.3"]}
+    rows = [answered | {"id": "q1"}, answered | {"id": "q2"}, {"id": "q3", "decision": "abstain"}]
+    contexts = {"q1": {"chunks": CHUNKS}, "q2": {"chunks": [("ac-2.3", f"Review every {PLANT_DETAIL}.")]}}
+    grader = LLM("j", Fake("SCORE: 3\nThe 47-day interval isn't in the controls."), tmp_path / "llm.jsonl")
+    probe = judge_probe(rows, contexts, grader)
+    assert (probe["probed"], probe["skipped_detail_in_context"], probe["scored_below_5"]) == (1, 1, 1.0)
+    [prompt_sent] = [e["prompt"] for e in grader.entries.values()]
+    assert f"Disable them [AC-2(3)]. This must be repeated at least every {PLANT_DETAIL} [AC-2(3)]." in prompt_sent
 
 
 def rows(*pairs):
