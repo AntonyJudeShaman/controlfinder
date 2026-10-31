@@ -4,8 +4,10 @@ For each question, production retrieval (Phase 3's pick: dense search over strat
 returns the top K parents, each with its best chunk. The generator answers from those chunks
 alone, code checks the citations, and a judge from another model family scores faithfulness
 against the same chunks. The metrics follow pre-registered definitions 2 to 6 and 8 in
-DECISIONS.md, each with a 95% bootstrap interval over questions. Every model call is cached, so
-a re-run replays the same answers, scores and latencies. Writes results/generation_dev.json.
+DECISIONS.md, each with a 95% bootstrap interval over questions. A probe then re-judges each
+answer with one planted unsupported claim, to check that the judge can tell. Every model call
+is cached, so a re-run replays the same answers, scores and latencies. Writes
+results/generation_dev.json.
 """
 
 import hashlib
@@ -23,7 +25,7 @@ from controlfinder.eval.qa import UNANSWERABLE, Question, load_questions
 from controlfinder.generation import citations, judge, prompt
 from controlfinder.generation.llm import LLM, PROVIDER
 from controlfinder.index.db import connect
-from controlfinder.ingest.ids import parent_control_id
+from controlfinder.ingest.ids import display_id, parent_control_id
 from controlfinder.retrieval import dense
 from controlfinder.retrieval.pipeline import Retriever
 
@@ -32,6 +34,8 @@ K = 10  # parents in the context
 GENERATOR_MODEL = "claude-sonnet-5-5"
 JUDGE_MODEL = "gpt-5.6-sol"
 OUT = Path("results/generation_dev.json")
+PLANT_DETAIL = "47 days"
+PLANT = f"This must be repeated at least every {PLANT_DETAIL} [{{citation}}]."
 
 
 def retrieve(questions: list[Question]) -> dict[str, dict]:
@@ -56,8 +60,8 @@ def answer_and_grade(q: Question, chunks: list[tuple[str, str]], generator: LLM,
     """One question's answer, its citation check and its faithfulness score, as a results row."""
     reply = generator(prompt.generation_prompt(q.question, chunks))
     context_ids = [control_id for control_id, _ in chunks]
-    row = {"id": q.id, "category": q.category, "answerable": q.answerable, "gold": list(q.gold),
-           "context": context_ids,
+    row = {"id": q.id, "question": q.question, "category": q.category, "answerable": q.answerable,
+           "gold": list(q.gold), "context": context_ids,
            "gold_in_context": sorted({parent_control_id(c) for c in context_ids} & set(q.gold)),
            "decision": "abstain" if prompt.abstained(reply.text) else "answer", "answer": reply.text,
            "generate_ms": reply.ms, "input_tokens": reply.input_tokens, "output_tokens": reply.output_tokens,
@@ -72,6 +76,31 @@ def answer_and_grade(q: Question, chunks: list[tuple[str, str]], generator: LLM,
             row |= {"gold_recall": len(check.gold_cited) / len(q.gold),
                     "correct": len(check.valid) == len(check.citations) and bool(check.gold_cited)}
     return row
+
+
+def judge_probe(rows: list[dict], contexts: dict[str, dict], grader: LLM) -> dict:
+    """Each answered question again, with one planted claim its context doesn't support: does the judge notice?
+
+    Added after the first run, when the judge gave all 22 answers a 5 (DECISIONS.md): a judge that
+    never reads would give the same scores. Questions whose context contains the planted detail
+    are skipped and counted.
+    """
+    probes, skipped = [], 0
+    for r in rows:
+        if r["decision"] != "answer" or not r["valid"]:
+            continue
+        chunks = contexts[r["id"]]["chunks"]
+        if any(PLANT_DETAIL in text for _, text in chunks):
+            skipped += 1
+            continue
+        planted = f"{r['answer'].rstrip()} {PLANT.format(citation=display_id(r['valid'][0]))}"
+        verdict = grader(judge.judge_prompt(r["question"], chunks, planted))
+        probes.append({"id": r["id"], "score": judge.score(verdict.text), "judge_output": verdict.text})
+    scores = [p["score"] for p in probes]
+    return {"plant": PLANT, "probed": len(probes), "skipped_detail_in_context": skipped,
+            "scores": {str(s): scores.count(s) for s in range(1, 6)} | {"unparsed": scores.count(None)},
+            "scored_below_5": ratio(sum(s is not None and s < 5 for s in scores), len(probes)),
+            "per_question": probes}
 
 
 def ratio(a: float, b: float) -> float | None:
@@ -163,6 +192,7 @@ def main() -> None:
         "prompts": {"generate_sha256": sha256(prompt.GENERATE), "judge_sha256": sha256(judge.JUDGE)},
         "bootstrap": {"unit": "question", "resamples": N_RESAMPLES, "seed": SEED, "interval": "95% percentile"},
         **summarize(rows),
+        "judge_probe": judge_probe(rows, contexts, grader),
         "cost": {
             "llm_calls_per_question": {"generate": 1, "judge_per_answered_question": 1},
             "latency_ms": {"retrieval": p50_p95([r["retrieval_ms"] for r in rows]),
