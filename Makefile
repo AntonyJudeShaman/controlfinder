@@ -1,4 +1,4 @@
-.PHONY: up down reset-db schema psql test ann-demo ingest goldset embed baselines eval docs
+.PHONY: up down reset-db schema psql test ann-demo ingest goldset embed baselines ablations eval docs
 
 up: .env
 	docker compose up -d --wait
@@ -46,7 +46,12 @@ baselines:
 	uv run python -m controlfinder.eval.baselines
 	$(MAKE) docs
 
-eval: goldset embed baselines
+# Reranker scores come from data/cache/rerank.jsonl; pairs not in it download and run the model.
+ablations:
+	uv run python -m controlfinder.eval.ablations
+	$(MAKE) docs
+
+eval: goldset embed baselines ablations
 
 # Regenerates every results table in docs/learn/*.md and README.md.
 docs:
