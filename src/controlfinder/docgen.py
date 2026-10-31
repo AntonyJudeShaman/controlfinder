@@ -173,6 +173,94 @@ def bm25_idf_floor() -> str:
     return table([f"Lexeme (strategy C, {f['chunks']:,} chunks)", "Chunks containing it", "IDF in `rank_bm25`"], rows)
 
 
+ABLATION_SETUP = ["#", "Retrieval", "Chunking", "Rerank"]
+ABLATION_COLUMNS = ["recall@5", "recall@10", "recall@20", "norm_recall@10", "precision@5", "mrr", "ndcg@10"]
+
+
+def ablation_setup(r: dict) -> list:
+    return [r["row"], f"`{r['retrieval']}`", r["strategy"], "yes" if r["rerank"] else "no"]
+
+
+def excludes_zero(m: dict) -> bool:
+    return m["ci95"][0] > 0 or m["ci95"][1] < 0
+
+
+def ablation_rows() -> str:
+    d = json.loads((RESULTS / "ablations_dev.json").read_text())
+    rows = [[*ablation_setup(r), *(ci(r["metrics"][t]["recall@10"]) for t in QUERY_TYPES)] for r in d["rows"]]
+    return table([*ABLATION_SETUP, *(f"recall@10, `{t}` ({d['queries'][t]} queries)" for t in QUERY_TYPES)], rows)
+
+
+def ablation_metrics() -> str:
+    d = json.loads((RESULTS / "ablations_dev.json").read_text())
+    candidates = f"gold_among_the_{d['candidates']}_candidates"
+    rows = [[*ablation_setup(r), *(f"{r['metrics']['all'][c]['mean']:.3f}" for c in ABLATION_COLUMNS), f"{r[candidates]:.3f}"]
+            for r in d["rows"]]
+    return table([*ABLATION_SETUP, *ABLATION_COLUMNS, f"Gold among the {d['candidates']} candidates"], rows)
+
+
+def ablation_comparisons() -> str:
+    d = json.loads((RESULTS / "ablations_dev.json").read_text())
+    rows = [[f"{c['name']} (row {c['a']} − row {c['b']})", metric, f"`{t}`", signed_ci(by_type[t]),
+             "yes" if excludes_zero(by_type[t]) else "no"]
+            for c in d["comparisons"] for metric, by_type in c["metrics"].items() for t in QUERY_TYPES]
+    return table(["Comparison", "Metric", "Queries", "Difference: mean [95% CI]", "CI excludes 0"], rows)
+
+
+def rerank_costs() -> str:
+    d = json.loads((RESULTS / "ablations_dev.json").read_text())
+    rows = []
+    for r in d["rows"]:
+        costs = ["–"] * 3
+        if r["rerank"]:
+            over, pairs = r["pairs_over_512_tokens"], r["pairs_reranked"]
+            costs = [*(f"{r[k]['p50']:,.0f} / {r[k]['p95']:,.0f}" for k in ("rerank_ms", "total_ms")),
+                     f"{over:,} of {pairs:,} ({over / pairs:.0%})"]
+        rows.append([*ablation_setup(r), f"{r['retrieval_ms_p50']:.1f}", *costs])
+    return table([*ABLATION_SETUP, "Retrieval p50 (ms)", "Rerank p50 / p95 (ms)", "Total p50 / p95 (ms)",
+                  f"Pairs over {d['reranker']['max_length']} tokens"], rows)
+
+
+def rerank_effect() -> str:
+    e = json.loads((RESULTS / "ablations_dev.json").read_text())["rerank_effect_row_4"]
+    enhancement, candidates = e["candidates_scored_on_an_enhancement_chunk"], e["candidates"]
+    rows = [
+        ["Queries with more gold controls in the top 10", e["queries_with_more_gold_in_the_top_10"]],
+        ["Queries with fewer gold controls in the top 10", e["queries_with_less_gold_in_the_top_10"]],
+        ["Queries with the same number", e["queries_unchanged"]],
+        ["Gold candidates moved up", e["gold_candidates_moved_up"]],
+        ["Gold candidates moved down", e["gold_candidates_moved_down"]],
+        ["Gold candidates that kept their rank", e["gold_candidates_unmoved"]],
+        ["Candidates judged on an enhancement's chunk", f"{enhancement:,} of {candidates:,} ({enhancement / candidates:.0%})"],
+    ]
+    return table(["Row 4: reranking row 3's 50 candidates", "Count"], rows)
+
+
+def rerank_losses() -> str:
+    e = json.loads((RESULTS / "ablations_dev.json").read_text())["rerank_effect_row_4"]
+
+    def marked(parents: list[str], gold: list[str]) -> list[str]:
+        return [f"**{p}**" if p in gold else p for p in parents]
+
+    rows = [[x["query"], x["text"], ", ".join(x["gold"]), x["gold_in_top_10_change"],
+             ", ".join(f"{p} (`{chunk}`)" for p, chunk in zip(marked(x["before_top5"], x["gold"]), x["before_top5_chunks"],
+                                                             strict=True)),
+             ", ".join(marked(x["after_top5"], x["gold"]))] for x in e["largest_losses"]]
+    return table(["Query", "Text", "Gold", "Change in gold controls in the top 10",
+                  "Top 5 before reranking (gold in bold), with the chunk the reranker read", "Top 5 after"], rows)
+
+
+def production_pick() -> str:
+    d = json.loads((RESULTS / "ablations_dev.json").read_text())
+    p, by_row = d["production"], {r["row"]: r for r in d["rows"]}
+    rows = [[*ablation_setup(by_row[v["row"]]), v["parts"], f"{by_row[v['row']]['metrics']['all']['recall@10']['mean']:.3f}",
+             "best" if v["row"] == p["best_row"] else signed_ci(v["difference"]),
+             "yes" if excludes_zero(v["difference"]) else "no", "**pick**" if v["row"] == p["pick"] else ""]
+            for v in p["versus_best"]]
+    return table([*ABLATION_SETUP, "Parts", "recall@10 (all)", "Minus the best row [95% CI]",
+                  "Distinguishably worse", "Production"], rows)
+
+
 RENDERERS = {
     "ann_filter_demo": ann_filter_demo,
     "corpus_counts": corpus_counts,
@@ -186,6 +274,13 @@ RENDERERS = {
     "hnsw_vs_exact": hnsw_vs_exact,
     "dense_vs_bm25_examples": dense_vs_bm25_examples,
     "bm25_idf_floor": bm25_idf_floor,
+    "ablation_rows": ablation_rows,
+    "ablation_metrics": ablation_metrics,
+    "ablation_comparisons": ablation_comparisons,
+    "rerank_costs": rerank_costs,
+    "rerank_effect": rerank_effect,
+    "rerank_losses": rerank_losses,
+    "production_pick": production_pick,
 }
 
 
