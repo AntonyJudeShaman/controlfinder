@@ -1,4 +1,4 @@
-.PHONY: up down reset-db schema psql test ann-demo ingest goldset embed baselines ablations eval docs
+.PHONY: up down reset-db schema psql test ann-demo ingest goldset embed baselines ablations qa eval docs
 
 up: .env
 	docker compose up -d --wait
@@ -50,6 +50,10 @@ baselines:
 ablations:
 	uv run python -m controlfinder.eval.ablations
 	$(MAKE) docs
+
+# Checks the hand-labelled data/eval/qa.jsonl and writes data/eval/qa_review.md for reviewing it.
+qa:
+	uv run python -m controlfinder.eval.qa
 
 eval: goldset embed baselines ablations
 
