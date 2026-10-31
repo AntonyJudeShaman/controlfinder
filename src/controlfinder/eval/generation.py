@@ -39,7 +39,7 @@ def retrieve(questions: list[Question]) -> dict[str, dict]:
     model = dense.load_model()
     dense.embed_queries(model, ["warm up"])  # the first call is slow; keep it out of the timings
     contexts = {}
-    with connect() as conn:
+    with connect(autocommit=True) as conn:
         retriever = Retriever(conn, STRATEGY)
         control_of = dict(conn.execute("SELECT chunk_id, control_id FROM chunks WHERE strategy = %s",
                                        (STRATEGY,)).fetchall())
