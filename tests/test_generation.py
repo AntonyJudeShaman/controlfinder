@@ -9,6 +9,7 @@ from controlfinder.eval.generation import (
     answer_and_grade,
     citation_precision,
     counts,
+    gold_coverage,
     judge_probe,
 )
 from controlfinder.eval.qa import Question
@@ -91,7 +92,15 @@ def test_answer_and_grade_checks_citations_and_judges_answers(tmp_path):
     row = answer_and_grade(question(), CHUNKS, generator, grader)
     assert row["decision"] == "answer" and row["valid"] == ["ac-2.3", "sc-7"]
     assert row["gold_in_context"] == ["ac-2"] and row["gold_recall"] == 1.0 and row["correct"] is True
-    assert row["faithfulness"] == 5
+    assert row["faithfulness"] == 5 and row["gold_coverage"] == "enhancement_only"
+
+
+@pytest.mark.parametrize("context, expected", [
+    (["ac-2", "ac-2.3"], "base"), (["ac-2.3", "sc-7"], "enhancement_only"), (["sc-7"], "none"),
+])
+def test_gold_coverage_tells_a_base_chunk_from_an_enhancements(context, expected):
+    parents = sorted({c.split(".")[0] for c in context} & {"ac-2"})
+    assert gold_coverage({"gold": ["ac-2"], "context": context, "gold_in_context": parents}) == expected
 
 
 def test_an_invalid_citation_makes_the_answer_incorrect(tmp_path):
