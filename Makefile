@@ -1,4 +1,4 @@
-.PHONY: up down reset-db schema psql test ann-demo ingest goldset embed baselines ablations qa eval docs
+.PHONY: up down reset-db schema psql test ann-demo ingest goldset embed baselines ablations qa generate eval docs
 
 up: .env
 	docker compose up -d --wait
@@ -55,7 +55,12 @@ ablations:
 qa:
 	uv run python -m controlfinder.eval.qa
 
-eval: goldset embed baselines ablations
+# Answers and judge scores come from data/cache/llm.jsonl; calls not in it need CURSOR_API_KEY.
+generate:
+	uv run python -m controlfinder.eval.generation
+	$(MAKE) docs
+
+eval: goldset embed baselines ablations qa generate
 
 # Regenerates every results table in docs/learn/*.md and README.md.
 docs:
