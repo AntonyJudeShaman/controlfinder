@@ -13,6 +13,8 @@ import json
 import re
 from pathlib import Path
 
+from controlfinder.ingest.ids import display_id, parent_control_id
+
 RESULTS = Path("results")
 DOC_PATHS = [*sorted(Path("docs/learn").glob("*.md")), Path("README.md")]
 REGION = re.compile(r"(<!-- BEGIN generated: (\w+) -->).*?(<!-- END generated: \2 -->)", re.S)
@@ -261,6 +263,122 @@ def production_pick() -> str:
                   "Distinguishably worse", "Production"], rows)
 
 
+QA_CATEGORIES = {
+    "answerable": "SP 800-53 supports an answer; each lists {min}–{max} gold base controls",
+    "other_framework": "Needs another framework's text (PCI DSS, ISO 27001, SOC 2, ...)",
+    "internal_policy": "Needs one organization's own facts (\"Who is our CISO?\")",
+    "legal": "Needs a legal conclusion",
+    "trivia": "General knowledge unrelated to the catalog",
+    "security_specifics": "Security facts the catalog doesn't hold (a CVE's score, product steps)",
+}
+
+
+def qa_counts() -> str:
+    d = json.loads((RESULTS / "qa_stats.json").read_text())
+    rows = [[f"`{category}`", meaning.format(**d["gold_set_size"]), d["by_category"][category]["dev"],
+             d["by_category"][category]["test"]] for category, meaning in QA_CATEGORIES.items()]
+    rows.append(["**all**", f"{d['distinct_gold_controls']} distinct gold controls from {d['families_in_gold']} families",
+                 sum(v["dev"] for v in d["by_category"].values()), sum(v["test"] for v in d["by_category"].values())])
+    return table(["Category", "What a question needs", "Dev", "Test (sealed)"], rows)
+
+
+GENERATION_METRICS = {
+    "abstention_precision": "Of the refusals, the share that were unanswerable questions",
+    "abstention_recall": "Of the unanswerable questions, the share refused",
+    "abstention_f1": "The two above combined (harmonic mean)",
+    "answer_rate": "Of all questions, the share answered",
+    "citation_precision": "Of all citations in answers, the share whose exact control was in the context",
+    "gold_citation_recall": "Per answered answerable question, the share of its gold controls validly cited, averaged",
+    "answer_accuracy": "Of answered answerable questions, the share with every citation valid and at least one gold",
+    "faithfulness": "The judge's mean score from 1 to 5, over answered questions",
+    "gold_in_context": "Of answerable questions, the share with a gold control among the 10 retrieved",
+}
+LATENCY_PARTS = {
+    "retrieval": "Retrieval: embed the question, exact dense search",
+    "generate": "Generation: one Cursor agent call",
+    "retrieval_plus_generate": "Per question: retrieval + generation",
+    "judge": "Judge call (evaluation only, not part of the pipeline)",
+}
+
+
+def generation() -> dict:
+    return json.loads((RESULTS / "generation_dev.json").read_text())
+
+
+def value_ci(m: dict) -> str:
+    if m["value"] is None:
+        return "undefined"
+    return f"{m['value']:.3f}" + (f" [{m['ci95'][0]:.3f}, {m['ci95'][1]:.3f}]" if m["ci95"] else "")
+
+
+def generation_metrics() -> str:
+    metrics = generation()["metrics"]
+    rows = [[f"`{name}`", meaning, value_ci(metrics[name]), metrics[name]["undefined_resamples"]]
+            for name, meaning in GENERATION_METRICS.items()]
+    return table(["Metric", "What it measures", "Value [95% CI]", "Resamples where undefined"], rows)
+
+
+def abstention_matrix() -> str:
+    c = generation()["abstention_counts"]
+    return table(["Dev questions", "Refused", "Answered"],
+                 [["Unanswerable", f"{c['tp']} (TP)", f"{c['fn']} (FN)"],
+                  ["Answerable", f"{c['fp']} (FP)", f"{c['tn']} (TN)"]])
+
+
+def abstention_by_category() -> str:
+    rows = [[f"`{category}`", v["questions"], v["abstained"]] for category, v in generation()["abstained_by_category"].items()]
+    return table(["Category", "Dev questions", "Refused"], rows)
+
+
+COVERAGE_LABELS = {
+    "base": "A gold control's own chunk",
+    "enhancement_only": "Only chunks of a gold control's enhancements",
+    "none": "No gold control at all",
+}
+
+
+def judge_scores() -> str:
+    d = generation()
+    probe = d["judge_probe"]
+    rows = [["Answers as generated", *d["faithfulness_scores"].values()],
+            [f"The same answers plus one planted claim ({probe['probed']} probed)", *probe["scores"].values()]]
+    return table(["Judge score", *d["faithfulness_scores"]], rows)
+
+
+def gold_coverage() -> str:
+    rows = [[COVERAGE_LABELS[coverage], v["questions"], v["refused"], v["answered"], v["correct"]]
+            for coverage, v in generation()["answerable_by_gold_coverage"].items()]
+    return table(["What the 10 retrieved chunks held", "Answerable questions", "Refused", "Answered",
+                  "Answered correctly"], rows)
+
+
+def gold_chunks(row: dict) -> str:
+    return ", ".join(display_id(c) for c in row["context"] if parent_control_id(c) in row["gold"]) or "none"
+
+
+def wrong_refusals() -> str:
+    rows = [[r["id"], r["question"], ", ".join(display_id(g) for g in r["gold"]), gold_chunks(r)]
+            for r in generation()["per_question"] if r["answerable"] and r["decision"] == "abstain"]
+    return table(["ID", "Answerable question the pipeline refused", "Gold", "Gold controls' chunks among the 10"], rows)
+
+
+def incorrect_answers() -> str:
+    rows = [[r["id"], r["question"], ", ".join(display_id(g) for g in r["gold"]), gold_chunks(r),
+             ", ".join(display_id(c) for c in r["citations"])]
+            for r in generation()["per_question"] if r.get("correct") is False]
+    return table(["ID", "Question", "Gold", "Gold controls' chunks among the 10", "Cited instead"], rows)
+
+
+def generation_costs() -> str:
+    cost = generation()["cost"]
+    rows = [[LATENCY_PARTS[part], f"{v['p50']:,.0f} / {v['p95']:,.0f}" if v else "–"]
+            for part, v in cost["latency_ms"].items()]
+    tokens = cost["generate_tokens_mean"]
+    rows += [["Mean input tokens per generation call", f"{tokens['input_tokens']:,.0f}"],
+             ["Mean output tokens per generation call", f"{tokens['output_tokens']:,.0f}"]]
+    return table(["Cost", "p50 / p95 (ms), or mean"], rows)
+
+
 RENDERERS = {
     "ann_filter_demo": ann_filter_demo,
     "corpus_counts": corpus_counts,
@@ -281,6 +399,15 @@ RENDERERS = {
     "rerank_effect": rerank_effect,
     "rerank_losses": rerank_losses,
     "production_pick": production_pick,
+    "qa_counts": qa_counts,
+    "generation_metrics": generation_metrics,
+    "abstention_matrix": abstention_matrix,
+    "abstention_by_category": abstention_by_category,
+    "judge_scores": judge_scores,
+    "gold_coverage": gold_coverage,
+    "wrong_refusals": wrong_refusals,
+    "incorrect_answers": incorrect_answers,
+    "generation_costs": generation_costs,
 }
 
 
