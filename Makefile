@@ -1,4 +1,4 @@
-.PHONY: up down reset-db schema psql test ann-demo ingest goldset embed baselines ablations qa generate eval docs
+.PHONY: up down reset-db schema psql test ann-demo ingest goldset embed baselines ablations qa generate eval agent-eval docs
 
 up: .env
 	docker compose up -d --wait
@@ -61,6 +61,12 @@ generate:
 	$(MAKE) docs
 
 eval: goldset embed baselines ablations qa generate
+
+# Sweeps τ, then compares the pipeline, the pipeline with base text and the agent on dev.
+# Model calls and reranker scores come from data/cache/; calls not in it need CURSOR_API_KEY.
+agent-eval:
+	uv run python -m controlfinder.eval.agent
+	$(MAKE) docs
 
 # Regenerates every results table in docs/learn/*.md and README.md.
 docs:
