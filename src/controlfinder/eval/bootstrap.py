@@ -8,7 +8,8 @@ differences, so both are always judged on the same draw.
 
 QA questions share nothing, so each is its own cluster, and `resample_ci` resamples them
 directly. It takes any statistic of a list of questions, which also covers ratios like F1 that
-aren't a mean of per-question values.
+aren't a mean of per-question values. `paired_resample_ci` does the same for the difference
+between two systems answering the same questions.
 """
 
 import random
@@ -45,9 +46,32 @@ def resample_ci(items: list, statistic: Callable[[list], float | None], n_resamp
     """
     rng = random.Random(seed)
     draws = [statistic(rng.choices(items, k=len(items))) for _ in range(n_resamples)]
+    return _interval(statistic(items), draws)
+
+
+def paired_resample_ci(a: list, b: list, statistic: Callable[[list], float | None],
+                       n_resamples: int = N_RESAMPLES, seed: int = SEED) -> dict:
+    """`statistic(a) - statistic(b)`, where a[i] and b[i] are two systems' rows for the same question.
+
+    Each resample draws question positions and keeps both systems' rows for them, so the two are
+    always compared on the same questions.
+    """
+    if len(a) != len(b):
+        raise ValueError("a and b must hold the same questions, in the same order")
+
+    def difference(positions) -> float | None:
+        x, y = statistic([a[i] for i in positions]), statistic([b[i] for i in positions])
+        return None if x is None or y is None else x - y
+
+    rng = random.Random(seed)
+    draws = [difference(rng.choices(range(len(a)), k=len(a))) for _ in range(n_resamples)]
+    return _interval(difference(range(len(a))), draws)
+
+
+def _interval(value: float | None, draws: list[float | None]) -> dict:
     defined = [d for d in draws if d is not None]
-    value, ci95 = statistic(items), None
+    ci95 = None
     if value is not None and len(defined) > 1:
         cuts = quantiles(defined, n=40, method="inclusive")
         ci95 = [cuts[0], cuts[-1]]
-    return {"value": value, "ci95": ci95, "undefined_resamples": n_resamples - len(defined)}
+    return {"value": value, "ci95": ci95, "undefined_resamples": len(draws) - len(defined)}
