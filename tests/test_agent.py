@@ -2,7 +2,7 @@ import pytest
 
 from controlfinder.agent import prompts
 from controlfinder.agent.graph import MAX_REWRITES, Agent, Tools
-from controlfinder.eval.agent import agent_row, decision_moves, pairwise, pick_tau, production_pick
+from controlfinder.eval.agent import agent_row, decision_moves, first_scores, pairwise, pick_tau, production_pick
 from controlfinder.eval.bootstrap import paired_resample_ci
 from controlfinder.eval.qa import Question
 from controlfinder.generation.llm import LLM, Reply
@@ -166,6 +166,19 @@ def test_production_takes_the_simplest_system_within_noise_of_the_best():
 def test_production_takes_a_system_that_is_distinguishably_best():
     pick = production_pick({"pipeline": rows(20), "pipeline_base_text": rows(20), "agent": rows(0)})
     assert pick["pick"] == "agent"
+    assert pick["gaps_to_best"]["pipeline"]["ci95"][1] < 0 and pick["gaps_to_best"]["agent"]["value"] == 0
+
+
+def test_first_scores_use_the_first_retrieval_and_group_by_the_pipeline():
+    def run(score):
+        return {"trace": [] if score is None else [{"node": "grade_evidence", "top_score": score},
+                                                   {"node": "grade_evidence", "top_score": 9.0}]}
+    pipeline = [{"answerable": True, "decision": d} for d in ("answer", "answer", "abstain")]
+    pipeline.append({"answerable": False, "decision": "abstain"})
+    out = first_scores([run(-1.0), run(-3.0), run(-2.0), run(None)], pipeline)
+    assert out["answerable_pipeline_answer"] == {"questions": 2, "scored": 2, "min": -3.0, "median": -2.0, "max": -1.0}
+    assert out["answerable_pipeline_abstain"]["median"] == -2.0
+    assert out["unanswerable"] == {"questions": 1, "scored": 0, "min": None, "median": None, "max": None}
 
 
 def test_paired_resample_ci_compares_the_same_questions():
