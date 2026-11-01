@@ -23,6 +23,7 @@ from collections import Counter
 from functools import cache
 from importlib.metadata import version
 from pathlib import Path
+from statistics import median
 
 from matplotlib.figure import Figure
 from psycopg import Connection
@@ -103,7 +104,8 @@ def sweep(questions: list[Question], tools: Tools) -> tuple[list[dict], dict]:
                        "rewrites_mean": average([r["rewrites"] for r in rows]),
                        "rewritten": len(rewritten),
                        "answered_after_rewrite": sum(r["decision"] == "answer" for r in rewritten),
-                       "correct_after_rewrite": sum(r.get("correct", False) for r in rewritten)})
+                       "correct_after_rewrite": sum(r.get("correct", False) for r in rewritten),
+                       "after_rewrite": {r["id"]: r.get("correct", False) for r in rewritten if r["decision"] == "answer"}})
         print(f"tau {tau}: abstention F1 {points[-1]['abstention_f1']}, answer rate {points[-1]['answer_rate']}"
               f" ({time.perf_counter() - start:.0f} s)", flush=True)
     return points, runs
@@ -156,10 +158,34 @@ def production_pick(rows: dict[str, list[dict]]) -> dict:
     paired 95% interval of its gap to the best reaches 0 (DECISIONS.md)."""
     f1 = {s: abstention_f1(rows[s]) for s in SYSTEMS}
     best = max(SYSTEMS, key=lambda s: -math.inf if f1[s] is None else f1[s])
-    for system in SYSTEMS:
-        gap = paired_resample_ci(rows[system], rows[best], abstention_f1)
-        if system == best or (gap["ci95"] is not None and gap["ci95"][1] >= 0):
-            return {"pick": system, "best": best, "abstention_f1": f1, "gap_to_best": gap}
+    gaps = {s: paired_resample_ci(rows[s], rows[best], abstention_f1) for s in SYSTEMS}
+    pick = next(s for s in SYSTEMS if s == best or (gaps[s]["ci95"] is not None and gaps[s]["ci95"][1] >= 0))
+    return {"pick": pick, "best": best, "abstention_f1": f1, "gaps_to_best": gaps}
+
+
+def step_ms(rows: list[dict]) -> dict:
+    """Descriptive: each node's time per step over the runs, in the order the nodes first ran."""
+    times: dict[str, list[float]] = {}
+    for r in rows:
+        for s in r["trace"]:
+            times.setdefault(s["node"], []).append(s["ms"])
+    return {node: {"steps": len(ms)} | p50_p95(ms) for node, ms in times.items()}
+
+
+def first_scores(rows: list[dict], pipeline: list[dict]) -> dict:
+    """Descriptive: the evidence score of each question's first retrieval, grouped by what the
+    pipeline did with it. Off-topic questions stop before retrieval, so they have no score."""
+    groups: dict[str, list[float | None]] = {}
+    for r, p in zip(rows, pipeline, strict=True):
+        group = "unanswerable" if not p["answerable"] else f"answerable_pipeline_{p['decision']}"
+        step = next((s for s in r["trace"] if s["node"] == "grade_evidence"), None)
+        groups.setdefault(group, []).append(None if step is None else step["top_score"])
+    out = {}
+    for group, scores in sorted(groups.items()):
+        scored = [x for x in scores if x is not None]
+        out[group] = {"questions": len(scores), "scored": len(scored), "min": min(scored, default=None),
+                      "median": median(scored) if scored else None, "max": max(scored, default=None)}
+    return out
 
 
 def agent_paths(rows: list[dict]) -> dict:
@@ -278,6 +304,8 @@ def main() -> None:
         "production_pick": production_pick(rows),
         "pairwise": pairwise_summary(pairs) | {"per_question": pairs},
         "agent_paths": agent_paths(rows["agent"]),
+        "agent_step_ms": step_ms(rows["agent"]),
+        "first_evidence_scores": first_scores(rows["agent"], rows["pipeline"]),
         "decision_moves_from_pipeline": {s: decision_moves(rows[s], rows["pipeline"]) for s in SYSTEMS[1:]},
         "per_question": rows,
     }
