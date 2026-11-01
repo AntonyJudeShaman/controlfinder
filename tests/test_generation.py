@@ -15,6 +15,7 @@ from controlfinder.eval.generation import (
 from controlfinder.eval.qa import Question
 from controlfinder.generation import citations, judge, prompt
 from controlfinder.generation.llm import LLM, Reply
+from controlfinder.retrieval.production import Context
 
 CHUNKS = [("ac-2.3", "AC-2(3) Account Management | Disable Accounts\n\nDisable accounts ..."),
           ("sc-7", "SC-7 Boundary Protection\n\nMonitor and control communications ...")]
@@ -120,7 +121,7 @@ def test_judge_probe_plants_a_claim_and_skips_contexts_that_contain_it(tmp_path)
     answered = {"decision": "answer", "question": "How do we disable accounts?", "answer": "Disable them [AC-2(3)].",
                 "valid": ["ac-2.3"]}
     rows = [answered | {"id": "q1"}, answered | {"id": "q2"}, {"id": "q3", "decision": "abstain"}]
-    contexts = {"q1": {"chunks": CHUNKS}, "q2": {"chunks": [("ac-2.3", f"Review every {PLANT_DETAIL}.")]}}
+    contexts = {"q1": Context(CHUNKS, 1.0), "q2": Context([("ac-2.3", f"Review every {PLANT_DETAIL}.")], 1.0)}
     grader = LLM("j", Fake("SCORE: 3\nThe 47-day interval isn't in the controls."), tmp_path / "llm.jsonl")
     probe = judge_probe(rows, contexts, grader)
     assert (probe["probed"], probe["skipped_detail_in_context"], probe["scored_below_5"]) == (1, 1, 1.0)
