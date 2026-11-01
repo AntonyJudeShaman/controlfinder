@@ -1,11 +1,15 @@
-"""The faithfulness judge (pre-registered definition 6): does the answer say only what its context says?
+"""The LLM judges: faithfulness (pre-registered definition 6) and pairwise (definition 7).
 
 Faithfulness isn't correctness. An answer can repeat its context perfectly and still be wrong,
 because the context was the wrong controls; the citation checks and answer accuracy catch that
-side. The judge sees the exact controls the generator saw and scores 1 to 5 with the rubric
-below, fixed before the first judged run. Two known judge biases are handled here: it's told
-not to reward length (verbosity bias), and it comes from a different model family than the
-generator (self-preference). Position bias only arises when comparing two answers, in Phase 5.
+side. The faithfulness judge sees the exact controls the generator saw and scores 1 to 5 with
+the rubric below, fixed before the first judged run. Two known judge biases are handled here:
+it's told not to reward length (verbosity bias), and it comes from a different model family
+than the generator (self-preference).
+
+The pairwise judge picks the better of two answers, which brings in position bias: judges tend
+to favor whichever answer comes first, or second. So the caller asks in both orders and counts
+a win only when both orders pick the same answer.
 """
 
 import re
@@ -44,3 +48,34 @@ def score(reply: str) -> int | None:
     """The first 'SCORE: n' line's n, or None if the judge didn't follow the format."""
     match = _SCORE.search(reply)
     return int(match[1]) if match else None
+
+
+PAIRWISE = """You are comparing two answers to a question about NIST SP 800-53 Rev 5 security and privacy controls. Each answer was written from controls retrieved for it, and all of those controls are below. Decide which answer is better: the one that answers the question more directly and correctly, using only claims the controls support. Don't prefer an answer for being longer, or for coming first or second. If they're about equally good, say TIE.
+
+<controls>
+{controls}
+</controls>
+
+Question: {question}
+
+<answer_1>
+{first}
+</answer_1>
+
+<answer_2>
+{second}
+</answer_2>
+
+Reply with one line in the form WINNER: 1, WINNER: 2 or WINNER: TIE, then one sentence saying why."""
+
+_WINNER = re.compile(r"^\W*WINNER\W*(1|2|TIE)\b", re.IGNORECASE | re.MULTILINE)
+
+
+def pairwise_prompt(question: str, chunks: list[tuple[str, str]], first: str, second: str) -> str:
+    return PAIRWISE.format(controls=controls_block(chunks), question=question, first=first, second=second)
+
+
+def winner(reply: str) -> str | None:
+    """'1', '2' or 'TIE' from the first 'WINNER: ...' line, or None if the judge didn't follow the format."""
+    match = _WINNER.search(reply)
+    return match[1].upper() if match else None
