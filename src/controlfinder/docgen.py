@@ -379,6 +379,215 @@ def generation_costs() -> str:
     return table(["Cost", "p50 / p95 (ms), or mean"], rows)
 
 
+SYSTEM_LABELS = {"pipeline": "Pipeline", "pipeline_base_text": "Pipeline + base text", "agent": "Agent"}
+SWEPT = {"answer_rate": "Answer rate", "abstention_precision": "Abstention precision",
+         "abstention_recall": "Abstention recall", "abstention_f1": "Abstention F1", "answer_accuracy": "Answer accuracy"}
+REASON_LABELS = {
+    "out_of_scope": "Refused: the scope check said off-topic",
+    "weak_evidence": "Refused: evidence still below τ after 2 rewrites",
+    "generator_refused": "Refused: the generator replied INSUFFICIENT_EVIDENCE",
+    "citations_failed": "Refused: the citations failed the check twice",
+}
+
+
+def agent_results() -> dict:
+    return json.loads((RESULTS / "agent_dev.json").read_text())
+
+
+def three(value: float | None) -> str:
+    return "undefined" if value is None else f"{value:.3f}"
+
+
+def delta_ci(m: dict) -> str:
+    if m["value"] is None:
+        return "undefined"
+    return f"{m['value']:+.3f}" + (f" [{m['ci95'][0]:+.3f}, {m['ci95'][1]:+.3f}]" if m["ci95"] else "")
+
+
+def tau_label(tau: float | None) -> str:
+    return "no gate" if tau is None else f"{tau:.2f}"
+
+
+def agent_graph() -> str:
+    return f"```mermaid\n{agent_results()['agent']['graph_mermaid'].strip()}\n```"
+
+
+def step_details(step: dict) -> str:
+    parts = []
+    for key, value in step.items():
+        if key in ("node", "ms", "answer", "verdict"):
+            continue
+        if key in ("controls", "citations", "invalid"):
+            value = ", ".join(map(display_id, value)) or "none"
+        elif key == "closest":
+            value = ", ".join(f"{display_id(c['control_id'])} ({c['score']:.2f})" for c in value) or "none"
+        elif key == "tau":
+            value = tau_label(value)
+        elif isinstance(value, float):
+            value = f"{value:.2f}"
+        elif key == "query":
+            value = f'"{value}"'
+        parts.append(f"{key.replace('_', ' ')}: {value}")
+    return "; ".join(parts)
+
+
+def example_traces() -> str:
+    """The first answered question, the first answerable one the generator refused, and the first off-topic one."""
+    runs = agent_results()["per_question"]["agent"]
+    picks = [next((r for r in runs if test(r)), None) for test in (
+        lambda r: r["decision"] == "answer",
+        lambda r: r["answerable"] and r["reason"] == "generator_refused",
+        lambda r: r["reason"] == "out_of_scope")]
+    rows = [[f"{r['id']}: {r['question']}" if i == 0 else "", f"`{s['node']}`", f"{s['ms']:,.0f}", step_details(s)]
+            for r in picks if r for i, s in enumerate(r["trace"])]
+    return table(["Question", "Node", "ms", "What the step recorded"], rows)
+
+
+def tau_sweep() -> str:
+    """One row per run of neighbouring τ values that gave the same results."""
+    d = json.loads((RESULTS / "threshold_sweep.json").read_text())
+    rescues = ["rewritten", "answered_after_rewrite", "correct_after_rewrite"]
+    keys = [*SWEPT, "llm_calls_mean", *rescues]
+    groups = []
+    for p in d["points"]:
+        if groups and None not in (p["tau"], groups[-1][0]["tau"]) and all(p[k] == groups[-1][0][k] for k in keys):
+            groups[-1].append(p)
+        else:
+            groups.append([p])
+    rows = []
+    for group in groups:
+        first, last = tau_label(group[0]["tau"]), tau_label(group[-1]["tau"])
+        span = first if first == last else f"{first} to {last}"
+        if d["chosen"]["tau"] in [p["tau"] for p in group]:
+            span = f"**{span} (chosen)**" if first == last else f"**{span} (chosen: {tau_label(d['chosen']['tau'])})**"
+        rows.append([span, *[three(group[0][k]) for k in SWEPT], f"{group[0]['llm_calls_mean']:.2f}",
+                     " / ".join(str(group[0][k]) for k in rescues)])
+    return table(["τ", *SWEPT.values(), "LLM calls per question", "Rewritten / then answered / correctly"], rows)
+
+
+def tau_ranges(taus: list[float], step: float) -> str:
+    spans = []
+    for tau in sorted(taus):
+        if spans and tau - spans[-1][1] <= step + 1e-9:
+            spans[-1][1] = tau
+        else:
+            spans.append([tau, tau])
+    return ", ".join(tau_label(a) if a == b else f"{tau_label(a)} to {tau_label(b)}" for a, b in spans)
+
+
+def rewrite_answers() -> str:
+    """Every question the agent answered only after a rewrite, at any τ, beside what the pipeline did."""
+    d = json.loads((RESULTS / "threshold_sweep.json").read_text())
+    pipeline = {r["id"]: r for r in agent_results()["per_question"]["pipeline"]}
+    found: dict[str, list] = {}
+    for p in d["points"]:
+        for qid, correct in p["after_rewrite"].items():
+            found.setdefault(qid, []).append((p["tau"], correct))
+    rows = []
+    for qid, hits in sorted(found.items()):
+        verdicts = {correct for _, correct in hits}
+        rows.append([qid, pipeline[qid]["question"], outcome(pipeline[qid]),
+                     tau_ranges([tau for tau, _ in hits], d["grid"]["step"]),
+                     "yes" if verdicts == {True} else ("no" if verdicts == {False} else "at some τ")])
+    return table(["ID", "Question", "Pipeline", "τ values where a rewrite led to an answer", "Answer correct?"], rows)
+
+
+def system_metrics() -> str:
+    systems = agent_results()["systems"]
+    rows = [["TP / FP / FN / TN",
+             *[" / ".join(str(systems[s]["abstention_counts"][k]) for k in ("tp", "fp", "fn", "tn")) for s in SYSTEM_LABELS]]]
+    rows += [[f"`{name}`", *[value_ci(systems[s]["metrics"][name]) for s in SYSTEM_LABELS]] for name in GENERATION_METRICS]
+    return table(["Dev metric [95% CI]", *SYSTEM_LABELS.values()], rows)
+
+
+def versus_pipeline() -> str:
+    d = agent_results()["versus_pipeline"]
+    rows = [[f"`{metric}`", *[delta_ci(d[s][metric]) for s in d]] for metric in d["agent"]]
+    return table(["Metric", *[f"{SYSTEM_LABELS[s]} minus pipeline [95% CI]" for s in d]], rows)
+
+
+def agent_pick() -> str:
+    p = agent_results()["production_pick"]
+    rows = []
+    for s, label in SYSTEM_LABELS.items():
+        gap = p["gaps_to_best"][s]
+        within = "best" if s == p["best"] else ("yes" if gap["ci95"] and gap["ci95"][1] >= 0 else "no")
+        rows.append([f"**{label} (pick)**" if s == p["pick"] else label, three(p["abstention_f1"][s]), delta_ci(gap), within])
+    return table(["System, simplest first", "Abstention F1", "Minus the best's [95% CI]", "Within noise of the best?"], rows)
+
+
+SCORE_GROUPS = {
+    "answerable_pipeline_answer": "Answerable, answered by the pipeline",
+    "answerable_pipeline_abstain": "Answerable, refused by the pipeline",
+    "unanswerable": "Unanswerable",
+}
+
+
+def first_evidence_scores() -> str:
+    d = agent_results()["first_evidence_scores"]
+    rows = [[label, d[g]["questions"], d[g]["scored"],
+             *["–" if d[g][k] is None else f"{d[g][k]:.2f}" for k in ("min", "median", "max")]]
+            for g, label in SCORE_GROUPS.items()]
+    return table(["Dev questions", "Questions", "Scored (not stopped as off-topic)", "Lowest", "Median", "Highest"], rows)
+
+
+def system_costs() -> str:
+    systems = agent_results()["systems"]
+    rows = [[label, f"{systems[s]['llm_calls_per_question']['mean']:.2f} (max {systems[s]['llm_calls_per_question']['max']})",
+             f"{systems[s]['latency_ms']['p50']:,.0f} / {systems[s]['latency_ms']['p95']:,.0f}"]
+            for s, label in SYSTEM_LABELS.items()]
+    return table(["System", "LLM calls per question: mean (max)", "Latency per question, p50 / p95 (ms)"], rows)
+
+
+def agent_step_costs() -> str:
+    d = agent_results()["agent_step_ms"]
+    rows = [[f"`{node}`", v["steps"], f"{v['p50']:,.0f} / {v['p95']:,.0f}"] for node, v in d.items()]
+    return table(["Agent node", "Steps run on dev", "Time per step, p50 / p95 (ms)"], rows)
+
+
+def pairwise_results() -> str:
+    p = agent_results()["pairwise"]
+    return table(["Both answered", "Identical answers (ties, not judged)", "Agent wins", "Pipeline wins", "Ties",
+                  "Orders disagreed", "Unreadable verdicts"],
+                 [[p["both_answered"], p["identical_answers"], p["agent_wins"], p["pipeline_wins"], p["ties"],
+                   p["orders_disagreed"], p["unparsed_verdicts"]]])
+
+
+def agent_paths() -> str:
+    d = agent_results()["agent_paths"]
+    rows = [[REASON_LABELS[reason], n] for reason, n in d["abstained_because"].items()]
+    rows += [[f"Answered after {n} rewrite{'' if n == '1' else 's'}", count] for n, count in d["answered_after_rewrites"].items()]
+    rows += [["Questions rewritten at least once", d["questions_rewritten"]],
+             ["Answers retried after failing the citation check", d["citation_retries"]]]
+    return table(["How the agent's runs went (dev)", "Questions"], rows)
+
+
+def decision_moves() -> str:
+    d = agent_results()["decision_moves_from_pipeline"]
+    rows = [[kind, label, *[d[s][kind][move] for s in d]]
+            for kind in ("answerable", "unanswerable")
+            for move, label in (("abstain_to_answer", "refused → answered"), ("answer_to_abstain", "answered → refused"))]
+    return table(["Questions", "Change from the pipeline", *[SYSTEM_LABELS[s] for s in d]], rows)
+
+
+def outcome(r: dict) -> str:
+    if r["decision"] == "abstain":
+        return f"refused ({r['reason'].replace('_', ' ')})" if r.get("reason") else "refused"
+    text = "answered" if "correct" not in r else ("answered, correct" if r["correct"] else "answered, wrong")
+    if not r["answerable"]:
+        text += " (should have refused)"
+    return text + (f", after {r['rewrites']} rewrite{'' if r['rewrites'] == 1 else 's'}" if r.get("rewrites") else "")
+
+
+def changed_questions() -> str:
+    """Every dev question on which the three systems didn't all end the same way."""
+    per = agent_results()["per_question"]
+    rows = [[p["id"], p["question"], "answerable" if p["answerable"] else f"`{p['category']}`", *map(outcome, (p, b, a))]
+            for p, b, a in zip(per["pipeline"], per["pipeline_base_text"], per["agent"], strict=True)
+            if len({(r["decision"], r.get("correct")) for r in (p, b, a)}) > 1]
+    return table(["ID", "Question", "Kind", *SYSTEM_LABELS.values()], rows)
+
+
 RENDERERS = {
     "ann_filter_demo": ann_filter_demo,
     "corpus_counts": corpus_counts,
@@ -408,6 +617,20 @@ RENDERERS = {
     "wrong_refusals": wrong_refusals,
     "incorrect_answers": incorrect_answers,
     "generation_costs": generation_costs,
+    "agent_graph": agent_graph,
+    "example_traces": example_traces,
+    "tau_sweep": tau_sweep,
+    "rewrite_answers": rewrite_answers,
+    "system_metrics": system_metrics,
+    "versus_pipeline": versus_pipeline,
+    "agent_pick": agent_pick,
+    "first_evidence_scores": first_evidence_scores,
+    "system_costs": system_costs,
+    "agent_step_costs": agent_step_costs,
+    "pairwise_results": pairwise_results,
+    "agent_paths": agent_paths,
+    "decision_moves": decision_moves,
+    "changed_questions": changed_questions,
 }
 
 
