@@ -12,7 +12,6 @@ results/generation_dev.json.
 
 import hashlib
 import json
-import time
 from collections import Counter
 from importlib.metadata import version
 from pathlib import Path
@@ -26,11 +25,8 @@ from controlfinder.generation import citations, judge, prompt
 from controlfinder.generation.llm import LLM, PROVIDER
 from controlfinder.index.db import connect
 from controlfinder.ingest.ids import display_id, parent_control_id
-from controlfinder.retrieval import dense
-from controlfinder.retrieval.pipeline import Retriever
+from controlfinder.retrieval.production import K, STRATEGY, Context, Production
 
-STRATEGY = "C_separate"
-K = 10  # parents in the context
 GENERATOR_MODEL = "claude-sonnet-5-5"
 JUDGE_MODEL = "gpt-5.6-sol"
 OUT = Path("results/generation_dev.json")
@@ -38,22 +34,11 @@ PLANT_DETAIL = "47 days"
 PLANT = f"This must be repeated at least every {PLANT_DETAIL} [{{citation}}]."
 
 
-def retrieve(questions: list[Question]) -> dict[str, dict]:
-    """Each question's context, (control_id, text) pairs best first, and the time it took to get."""
-    model = dense.load_model()
-    dense.embed_queries(model, ["warm up"])  # the first call is slow; keep it out of the timings
-    contexts = {}
+def retrieve(questions: list[Question]) -> dict[str, Context]:
+    """Each question's context from production retrieval, and the time it took to get."""
     with connect(autocommit=True) as conn:
-        retriever = Retriever(conn, STRATEGY)
-        control_of = dict(conn.execute("SELECT chunk_id, control_id FROM chunks WHERE strategy = %s",
-                                       (STRATEGY,)).fetchall())
-        for q in questions:
-            start = time.perf_counter()
-            [vector] = dense.embed_queries(model, [q.question])
-            hits = retriever.search("dense", q.question, vector)[:K]
-            contexts[q.id] = {"chunks": [(control_of[h.chunk_id], retriever.texts[h.chunk_id]) for h in hits],
-                              "ms": (time.perf_counter() - start) * 1000}
-    return contexts
+        production = Production(conn)
+        return {q.id: production(q.question) for q in questions}
 
 
 COVERAGE = ("base", "enhancement_only", "none")
@@ -80,18 +65,28 @@ def answer_and_grade(q: Question, chunks: list[tuple[str, str]], generator: LLM,
     if q.answerable:
         row["gold_coverage"] = gold_coverage(row)
     if row["decision"] == "answer":
-        check = citations.check(reply.text, set(context_ids), q.gold)
-        verdict = grader(judge.judge_prompt(q.question, chunks, reply.text))
-        row |= {"citations": check.citations, "valid": check.valid, "gold_cited": check.gold_cited,
-                "faithfulness": judge.score(verdict.text), "judge_output": verdict.text,
-                "judge_ms": verdict.ms, "judge_model": verdict.model}
-        if q.answerable:
-            row |= {"gold_recall": len(check.gold_cited) / len(q.gold),
-                    "correct": len(check.valid) == len(check.citations) and bool(check.gold_cited)}
+        row |= grade_citations(q, reply.text, context_ids) | judge_answer(q, chunks, reply.text, grader)
     return row
 
 
-def judge_probe(rows: list[dict], contexts: dict[str, dict], grader: LLM) -> dict:
+def grade_citations(q: Question, answer: str, context_ids: list[str]) -> dict:
+    """An answered question's citation fields (definitions 4 and 5)."""
+    check = citations.check(answer, set(context_ids), q.gold)
+    fields = {"citations": check.citations, "valid": check.valid, "gold_cited": check.gold_cited}
+    if q.answerable:
+        fields |= {"gold_recall": len(check.gold_cited) / len(q.gold),
+                   "correct": len(check.valid) == len(check.citations) and bool(check.gold_cited)}
+    return fields
+
+
+def judge_answer(q: Question, chunks: list[tuple[str, str]], answer: str, grader: LLM) -> dict:
+    """The faithfulness judge's score for an answer, against the chunks it was written from."""
+    verdict = grader(judge.judge_prompt(q.question, chunks, answer))
+    return {"faithfulness": judge.score(verdict.text), "judge_output": verdict.text,
+            "judge_ms": verdict.ms, "judge_model": verdict.model}
+
+
+def judge_probe(rows: list[dict], contexts: dict[str, Context], grader: LLM) -> dict:
     """Each answered question again, with one planted claim its context doesn't support: does the judge notice?
 
     Added after the first run, when the judge gave all 22 answers a 5 (DECISIONS.md): a judge that
@@ -102,7 +97,7 @@ def judge_probe(rows: list[dict], contexts: dict[str, dict], grader: LLM) -> dic
     for r in rows:
         if r["decision"] != "answer" or not r["valid"]:
             continue
-        chunks = contexts[r["id"]]["chunks"]
+        chunks = contexts[r["id"]].chunks
         if any(PLANT_DETAIL in text for _, text in chunks):
             skipped += 1
             continue
@@ -193,7 +188,7 @@ def main() -> None:
     generator, grader = LLM(GENERATOR_MODEL), LLM(JUDGE_MODEL)
     rows = []
     for n, q in enumerate(questions, 1):
-        rows.append(answer_and_grade(q, contexts[q.id]["chunks"], generator, grader) | {"retrieval_ms": contexts[q.id]["ms"]})
+        rows.append(answer_and_grade(q, contexts[q.id].chunks, generator, grader) | {"retrieval_ms": contexts[q.id].ms})
         print(f"{n}/{len(questions)} {q.id} {rows[-1]['decision']}", flush=True)
 
     answered = [r for r in rows if r["decision"] == "answer"]
