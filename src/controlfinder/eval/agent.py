@@ -97,9 +97,13 @@ def sweep(questions: list[Question], tools: Tools) -> tuple[list[dict], dict]:
             if time.perf_counter() - asked > 1:  # only runs that made a new model call take this long
                 print(f"  tau {tau} {q.id} {rows[-1]['decision']} after {rows[-1]['rewrites']} rewrites", flush=True)
         runs[tau] = rows
+        rewritten = [r for r in rows if r["rewrites"]]
         points.append({"tau": tau, **{name: STATISTICS[name](rows) for name in SWEPT},
                        "llm_calls_mean": average([r["llm_calls"] for r in rows]),
-                       "rewrites_mean": average([r["rewrites"] for r in rows])})
+                       "rewrites_mean": average([r["rewrites"] for r in rows]),
+                       "rewritten": len(rewritten),
+                       "answered_after_rewrite": sum(r["decision"] == "answer" for r in rewritten),
+                       "correct_after_rewrite": sum(r.get("correct", False) for r in rewritten)})
         print(f"tau {tau}: abstention F1 {points[-1]['abstention_f1']}, answer rate {points[-1]['answer_rate']}"
               f" ({time.perf_counter() - start:.0f} s)", flush=True)
     return points, runs
@@ -230,7 +234,7 @@ def main() -> None:
             for system, chunks in (("pipeline", context.chunks),
                                    ("pipeline_base_text", production.with_base_text(context.chunks))):
                 rows[system].append(answer_and_grade(q, chunks, generator, grader) | {"retrieval_ms": context.ms})
-            print(f"{n}/{len(questions)} {q.id}: " + ", ".join(f"{s} {rows[s][-1]['decision']}" for s in SYSTEMS),
+            print(f"{n}/{len(questions)} {q.id}: " + ", ".join(f"{s} {rows[s][n - 1]['decision']}" for s in SYSTEMS),
                   flush=True)
         pairs = [pairwise(q, a["answer"], p["answer"], retrieve(a["queries_tried"][-1]).chunks,
                           retrieve(q.question).chunks, grader)
