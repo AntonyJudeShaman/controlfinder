@@ -294,3 +294,15 @@ These override the text above wherever they conflict. Each one has a row with it
 
 **Teaching corrections**
 - Phase 2 above says Postgres FTS has "no IDF saturation". The accurate version: BM25 multiplies IDF by a saturating term-frequency curve (k1) and normalizes for document length (b). Postgres `ts_rank` and `ts_rank_cd` use no corpus statistics at all (so no IDF), have no BM25-style saturation, and normalize for length only when asked to through their normalization flag. Teach this version.
+
+## Amendments agreed on 2026-11-01
+
+These override the text above, including the 2026-10-23 amendments, wherever they conflict. Each one has a row with its evidence in `DECISIONS.md`.
+
+- **The Phase 6 UI is a full web app, not the minimal stretch item.** Build it in Phase 6, after the agent and the FastAPI endpoints exist: Next.js, in a modern brutalist style, following Jude's React conventions. Pages:
+  - controls: browse and search the catalog;
+  - configs: every setup we tested and which one production uses, plus live knobs for the retriever, the chunking strategy, k and the reranker;
+  - results: every metric with its CI, and charts;
+  - ask: a cited answer or a refusal;
+  - trace: what the agent did for a question, step by step.
+- The frontend has no typed numbers. It reads everything from `results/` or the API, as the docs do.
