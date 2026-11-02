@@ -1,4 +1,4 @@
-.PHONY: up down reset-db schema psql test ann-demo ingest goldset embed baselines ablations qa generate eval agent-eval final-test docs
+.PHONY: up down reset-db schema psql test ann-demo ingest goldset embed baselines ablations qa generate eval agent-eval final-test ci-fixture ci-load ci-baseline ci-gate docs
 
 up: .env
 	docker compose up -d --wait
@@ -72,6 +72,20 @@ agent-eval:
 final-test:
 	CONTROLFINDER_UNSEAL_TEST=1 uv run python -m controlfinder.eval.final_test
 	$(MAKE) docs
+
+# The CI regression gate. ci-fixture needs the embedding model and a database after `make embed`;
+# CI itself runs ci-load (after schema and ingest) and ci-gate, with no model download.
+ci-fixture:
+	uv run python -m controlfinder.eval.ci fixture
+
+ci-load:
+	uv run python -m controlfinder.eval.ci load
+
+ci-baseline:
+	uv run python -m controlfinder.eval.ci baseline
+
+ci-gate:
+	uv run python -m controlfinder.eval.ci gate
 
 # Regenerates every results table in docs/learn/*.md and README.md.
 docs:
