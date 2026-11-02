@@ -39,7 +39,7 @@ class Retriever:
         lists = []
         if retrieval in ("bm25", "hybrid"):
             lists.append(top_parents(self.bm25.search(self.conn, query, self.depth), CANDIDATES))
-        if retrieval in ("dense", "hybrid"):
+        if retrieval == "dense":
             lists.append(top_parents(dense.search(self.conn, query_vector, self.strategy, self.depth, dense.EXACT),
                                      CANDIDATES))
         if not lists:
