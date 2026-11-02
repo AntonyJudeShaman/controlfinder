@@ -1,0 +1,91 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+
+@theme inline {
+  --font-heading: var(--font-sans);
+  --font-sans: var(--font-sans);
+  --font-mono: var(--font-mono);
+  --color-chart-5: var(--chart-5);
+  --color-chart-4: var(--chart-4);
+  --color-chart-3: var(--chart-3);
+  --color-chart-2: var(--chart-2);
+  --color-chart-1: var(--chart-1);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --color-foreground: var(--foreground);
+  --color-background: var(--background);
+  --radius-sm: var(--radius);
+  --radius-md: var(--radius);
+  --radius-lg: var(--radius);
+  --radius-xl: var(--radius);
+  --radius-2xl: var(--radius);
+  --radius-3xl: var(--radius);
+  --radius-4xl: var(--radius);
+  --shadow-brutal: 6px 6px 0 0 var(--foreground);
+  --shadow-brutal-sm: 3px 3px 0 0 var(--foreground);
+}
+
+:root {
+  --background: #f3efe3;
+  --foreground: #0b0b0b;
+  --card: #ffffff;
+  --card-foreground: #0b0b0b;
+  --popover: #ffffff;
+  --popover-foreground: #0b0b0b;
+  --primary: #0b0b0b;
+  --primary-foreground: #ffffff;
+  --secondary: #ffffff;
+  --secondary-foreground: #0b0b0b;
+  --muted: #e7e2d3;
+  --muted-foreground: #4b4b4b;
+  --accent: #ffe600;
+  --accent-foreground: #0b0b0b;
+  --destructive: #e3261c;
+  --border: #0b0b0b;
+  --input: #0b0b0b;
+  --ring: #0b0b0b;
+  --chart-1: #0b0b0b;
+  --chart-2: #ffe600;
+  --chart-3: #e3261c;
+  --chart-4: #2546f0;
+  --chart-5: #7a7a7a;
+  --radius: 0rem;
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  html {
+    @apply font-sans;
+  }
+  body {
+    @apply bg-background text-foreground antialiased;
+    background-image:
+      linear-gradient(to right, rgb(11 11 11 / 0.07) 1px, transparent 1px),
+      linear-gradient(to bottom, rgb(11 11 11 / 0.07) 1px, transparent 1px);
+    background-size: 32px 32px;
+  }
+  button:not(:disabled),
+  [role="button"]:not(:disabled) {
+    cursor: pointer;
+  }
+  ::selection {
+    @apply bg-accent text-accent-foreground;
+  }
+}
