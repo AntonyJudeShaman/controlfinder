@@ -1,4 +1,4 @@
-.PHONY: up down reset-db schema psql test ann-demo ingest goldset embed baselines ablations qa generate eval agent-eval final-test ci-fixture ci-load ci-baseline ci-gate api report docs
+.PHONY: up down reset-db schema psql test ann-demo ingest goldset embed baselines ablations qa generate eval agent-eval final-test ci-fixture ci-load ci-baseline ci-gate api web report docs
 
 up: .env
 	docker compose up -d --wait
@@ -90,6 +90,9 @@ ci-gate:
 # The API on http://127.0.0.1:8000. /ask calls a model unless data/cache/llm.jsonl has the prompt.
 api:
 	uv run uvicorn controlfinder.api.app:app --port 8000
+
+web:
+	cd web && pnpm install --frozen-lockfile && pnpm build && pnpm start
 
 # p50/p95 latency per stage and the abstention rate, per pipeline, from query_log.
 report:
