@@ -588,6 +588,201 @@ def changed_questions() -> str:
     return table(["ID", "Question", "Kind", *SYSTEM_LABELS.values()], rows)
 
 
+def final_test() -> dict:
+    return json.loads((RESULTS / "final_test.json").read_text())
+
+
+def dev_retrieval() -> tuple[dict, dict]:
+    return (json.loads((RESULTS / "baselines_dev.json").read_text()),
+            json.loads((RESULTS / "ablations_dev.json").read_text()))
+
+
+def yes_no(flag: bool) -> str:
+    return "yes" if flag else "no"
+
+
+def final_retrieval() -> str:
+    """Every retrieval setup on all queries: its dev number beside its one test run."""
+    test, (base, abl) = final_test()["retrieval"], dev_retrieval()
+    metric, on_test = abl["primary_metric"], {r["row"]: r for r in test["rows"]}
+    rows = [[f"Phase 2 `{name}`", f"`{name}`", base["strategy"], "no", ci(s["metrics"]["all"][metric]),
+             ci(test["baselines"][name]["metrics"]["all"][metric]), ""] for name, s in base["systems"].items()]
+    rows += [[f"Phase 3 row {r['row']}", *ablation_setup(r)[1:], ci(r["metrics"]["all"][metric]),
+              ci(on_test[r["row"]]["metrics"]["all"][metric]), "**yes**" if r["row"] == test["production"]["row"] else ""]
+             for r in abl["rows"]]
+    return table(["Setup", "Retrieval", "Chunking", "Rerank", f"{metric} dev ({abl['queries']['all']} queries) [95% CI]",
+                  f"{metric} test ({test['queries']['all']} queries) [95% CI]", "Production"], rows)
+
+
+def final_rows_by_type() -> str:
+    test = final_test()["retrieval"]
+    rows = [[*ablation_setup(r), *(ci(r["metrics"][t]["recall@10"]) for t in QUERY_TYPES)] for r in test["rows"]]
+    return table([*ABLATION_SETUP, *(f"test recall@10, `{t}` ({test['queries'][t]} queries)" for t in QUERY_TYPES)], rows)
+
+
+def final_rows_metrics() -> str:
+    test = final_test()["retrieval"]
+    rows = [[*ablation_setup(r), *(f"{r['metrics']['all'][c]['mean']:.3f}" for c in ABLATION_COLUMNS)] for r in test["rows"]]
+    return table([*ABLATION_SETUP, *(f"test {c}" for c in ABLATION_COLUMNS)], rows)
+
+
+def final_comparisons() -> str:
+    """Dev's pre-registered differences on all queries, with the test interval beside dev's."""
+    test, (base, abl) = final_test()["retrieval"], dev_retrieval()
+    rows = []
+    for c in base["comparisons"]:
+        t = next(x for x in test["baseline_comparisons"] if (x["a"], x["b"]) == (c["a"], c["b"]))
+        rows.append([f"`{c['a']}` − `{c['b']}`", base["primary_metric"], signed_ci(c["all"]), signed_ci(t["all"]),
+                     yes_no(excludes_zero(c["all"])), yes_no(excludes_zero(t["all"]))])
+    for c in abl["comparisons"]:
+        t = next(x for x in test["comparisons"] if x["name"] == c["name"])
+        rows += [[f"{c['name']} (row {c['a']} − row {c['b']})", metric, signed_ci(by_type["all"]),
+                  signed_ci(t["metrics"][metric]["all"]), yes_no(excludes_zero(by_type["all"])),
+                  yes_no(excludes_zero(t["metrics"][metric]["all"]))] for metric, by_type in c["metrics"].items()]
+    production, best = test["production"]["row"], abl["production"]["best_row"]
+    dev_versus_best = next(v["difference"] for v in abl["production"]["versus_best"] if v["row"] == production)
+    for v in test["production"]["versus_rows"]:
+        dev = dev_versus_best if v["row"] == best else None
+        rows.append([f"production (row {production}) − row {v['row']}", abl["primary_metric"],
+                     signed_ci(dev) if dev else "not computed on dev", signed_ci(v["difference"]["all"]),
+                     yes_no(excludes_zero(dev)) if dev else "–", yes_no(excludes_zero(v["difference"]["all"]))])
+    return table(["Difference, all queries", "Metric", "Dev [95% CI]", "Test [95% CI]", "Dev CI excludes 0",
+                  "Test CI excludes 0"], rows)
+
+
+def final_generation() -> str:
+    """The pre-registered answer metrics per system: dev beside test. The agent ran on dev only."""
+    test, dev = final_test()["generation"], agent_results()["systems"]
+    metrics = list(test["versus_pipeline"]["pipeline_base_text"])
+    rows = [[label, *[cell for m in metrics for cell in (value_ci(dev[s]["metrics"][m]),
+                                                          value_ci(test["systems"][s]["metrics"][m])
+                                                          if s in test["systems"] else "not run (dev only)")]]
+            for s, label in SYSTEM_LABELS.items()]
+    return table(["System", *[f"`{m}` {split}" for m in metrics for split in ("dev", "test")]], rows)
+
+
+def final_generation_metrics() -> str:
+    test, dev = final_test()["generation"], agent_results()["systems"]
+    systems = list(test["systems"])
+    rows = [["TP / FP / FN / TN", *[" / ".join(str(r[s]["abstention_counts"][k]) for k in ("tp", "fp", "fn", "tn"))
+                                     for s in systems for r in (dev, test["systems"])]]]
+    rows += [[f"`{name}`", *[value_ci(r[s]["metrics"][name]) for s in systems for r in (dev, test["systems"])]]
+             for name in GENERATION_METRICS if name in test["systems"][systems[0]]["metrics"]]
+    return table(["Metric [95% CI]", *[f"{SYSTEM_LABELS[s]}, {split}" for s in systems for split in ("dev", "test")]], rows)
+
+
+def final_versus() -> str:
+    test, dev = final_test()["generation"]["versus_pipeline"], agent_results()["versus_pipeline"]
+    rows = [[f"`{m}`", delta_ci(dev["pipeline_base_text"][m]), delta_ci(test["pipeline_base_text"][m]),
+             delta_ci(dev["agent"][m]), "not run"] for m in test["pipeline_base_text"]]
+    return table(["Metric", "Base text − pipeline, dev [95% CI]", "Base text − pipeline, test [95% CI]",
+                  "Agent − pipeline, dev [95% CI]", "Agent − pipeline, test"], rows)
+
+
+def final_decision_moves() -> str:
+    d = final_test()["generation"]["decision_moves_from_pipeline"]["pipeline_base_text"]
+    rows = [[kind, label, d[kind][move]] for kind in ("answerable", "unanswerable")
+            for move, label in (("abstain_to_answer", "refused → answered"), ("answer_to_abstain", "answered → refused"))]
+    return table(["Test questions", "Change from the pipeline", "Pipeline + base text"], rows)
+
+
+def final_costs() -> str:
+    test, dev = final_test(), agent_results()["systems"]
+    abl = dev_retrieval()[1]
+    on_test = {r["row"]: r for r in test["retrieval"]["rows"]}
+
+    def retrieval(r: dict) -> str:
+        first = f"{r['retrieval_ms_p50']:,.1f}"
+        return f"{first} + {r['rerank_ms']['p50']:,.0f} rerank" if r["rerank"] else first
+
+    rows = [[f"Row {r['row']} ({r['retrieval']}{', reranked' if r['rerank'] else ''}), p50", retrieval(r),
+             retrieval(on_test[r["row"]])] for r in abl["rows"]]
+    rows += [[f"{SYSTEM_LABELS[s]}: retrieval + generation, p50 / p95",
+              f"{dev[s]['latency_ms']['p50']:,.0f} / {dev[s]['latency_ms']['p95']:,.0f}",
+              f"{v['latency_ms']['p50']:,.0f} / {v['latency_ms']['p95']:,.0f}"] for s, v in test["generation"]["systems"].items()]
+    return table(["Latency (ms)", "Dev", "Test"], rows)
+
+
+def final_shifts() -> str:
+    """Every test result whose dev point estimate falls outside its test 95% interval: the pre-registered rule."""
+    test, (base, abl), agent = final_test(), dev_retrieval(), agent_results()
+    found, checked = [], 0
+
+    def check(what: str, metric: str, queries: str, dev: float | None, interval: dict, signed: bool = False) -> None:
+        nonlocal checked
+        if dev is None or not interval["ci95"]:
+            return
+        checked += 1
+        if interval["ci95"][0] <= dev <= interval["ci95"][1]:
+            return
+        point = interval.get("mean", interval.get("value"))
+        if "mean" in interval:
+            shown = signed_ci(interval) if signed else ci(interval)
+        else:
+            shown = delta_ci(interval) if signed else value_ci(interval)
+        found.append([what, metric, queries, f"{dev:+.3f}" if signed else f"{dev:.3f}", shown,
+                      "higher" if point > dev else "lower"])
+
+    retrieval = test["retrieval"]
+    for name, s in base["systems"].items():
+        for t in QUERY_TYPES:
+            for metric, m in s["metrics"][t].items():
+                check(f"`{name}`", metric, t, m["mean"], retrieval["baselines"][name]["metrics"][t][metric])
+    on_test = {r["row"]: r for r in retrieval["rows"]}
+    for r in abl["rows"]:
+        for t in QUERY_TYPES:
+            for metric, m in r["metrics"][t].items():
+                check(f"row {r['row']}", metric, t, m["mean"], on_test[r["row"]]["metrics"][t][metric])
+    for c in base["comparisons"]:
+        tc = next(x for x in retrieval["baseline_comparisons"] if (x["a"], x["b"]) == (c["a"], c["b"]))
+        for t in QUERY_TYPES:
+            check(f"`{c['a']}` − `{c['b']}`", base["primary_metric"], t, c[t]["mean"], tc[t], signed=True)
+    for c in abl["comparisons"]:
+        tc = next(x for x in retrieval["comparisons"] if x["name"] == c["name"])
+        for metric, by_type in c["metrics"].items():
+            for t in QUERY_TYPES:
+                check(f"row {c['a']} − row {c['b']}", metric, t, by_type[t]["mean"], tc["metrics"][metric][t], signed=True)
+    generation = test["generation"]
+    for s, v in generation["systems"].items():
+        for metric, m in v["metrics"].items():
+            check(SYSTEM_LABELS[s], metric, "QA", agent["systems"][s]["metrics"][metric]["value"], m)
+    for metric, m in generation["versus_pipeline"]["pipeline_base_text"].items():
+        check("Pipeline + base text − pipeline", metric, "QA",
+              agent["versus_pipeline"]["pipeline_base_text"][metric]["value"], m, signed=True)
+    if not found:
+        return f"In all {checked} checks, the dev point estimate falls inside its test 95% interval."
+    return (f"{len(found)} of {checked} checks have the dev point estimate outside its test 95% interval:\n\n"
+            + table(["What", "Metric", "Queries", "Dev", "Test [95% CI]", "Test is"], found))
+
+
+def threshold_chart() -> str:
+    """Line charts of the dev τ sweep for the README; the grid is even, so a numeric x-axis places every point."""
+    d = json.loads((RESULTS / "threshold_sweep.json").read_text())
+    grid, no_gate = d["grid"], next(p for p in d["points"] if p["tau"] is None)
+    points = [p for p in d["points"] if p["tau"] is not None]
+    charts = []
+    for key in ("abstention_f1", "answer_rate"):
+        values = ", ".join(f"{p[key]:.3f}" for p in points)
+        charts.append(f'```mermaid\nxychart-beta\n    title "{SWEPT[key]} on dev by τ (no gate: {no_gate[key]:.3f})"\n'
+                      f'    x-axis "τ, the reranker-logit gate" {grid["from"]:g} --> {grid["to"]:g}\n'
+                      f'    y-axis "{SWEPT[key]}" 0 --> 1\n    line [{values}]\n```')
+    return "\n\n".join(charts)
+
+
+def ci_gate() -> str:
+    d = json.loads((RESULTS / "ci_baseline.json").read_text())
+    return table(["CI gate", "Value"], [[k, v] for k, v in d.items() if not isinstance(v, (dict, list))])
+
+
+def query_log_report() -> str:
+    d = json.loads((RESULTS / "query_log_report.json").read_text())["pipelines"]
+    rows = [[f"`{pipeline}`", r["requests"],
+             "–" if r["abstention_rate"] is None else f"{r['abstention_rate']:.3f} ({r['abstained']} of {r['decided']})",
+             "<br>".join(f"{stage} {p['p50']:,.0f} / {p['p95']:,.0f}" for stage, p in r["latency_ms"].items())]
+            for pipeline, r in d.items()]
+    return table(["Pipeline", "Requests", "Abstention rate", "Stage: p50 / p95 (ms)"], rows)
+
+
 RENDERERS = {
     "ann_filter_demo": ann_filter_demo,
     "corpus_counts": corpus_counts,
@@ -631,6 +826,19 @@ RENDERERS = {
     "agent_paths": agent_paths,
     "decision_moves": decision_moves,
     "changed_questions": changed_questions,
+    "final_retrieval": final_retrieval,
+    "final_rows_by_type": final_rows_by_type,
+    "final_rows_metrics": final_rows_metrics,
+    "final_comparisons": final_comparisons,
+    "final_generation": final_generation,
+    "final_generation_metrics": final_generation_metrics,
+    "final_versus": final_versus,
+    "final_decision_moves": final_decision_moves,
+    "final_costs": final_costs,
+    "final_shifts": final_shifts,
+    "threshold_chart": threshold_chart,
+    "ci_gate": ci_gate,
+    "query_log_report": query_log_report,
 }
 
 
