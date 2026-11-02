@@ -12,6 +12,7 @@ import time
 from typing import NamedTuple
 
 from psycopg import Connection
+from sentence_transformers import SentenceTransformer
 
 from controlfinder.ingest.ids import parent_control_id
 from controlfinder.retrieval import dense
@@ -27,10 +28,10 @@ class Context(NamedTuple):
 
 
 class Production:
-    """Callable on a query: its top K parents' chunks. Loads the embedder once."""
+    """Callable on a query: its top K parents' chunks. Loads the embedder once, unless given one."""
 
-    def __init__(self, conn: Connection):
-        self.model = dense.load_model()
+    def __init__(self, conn: Connection, model: SentenceTransformer | None = None):
+        self.model = model or dense.load_model()
         dense.embed_queries(self.model, ["warm up"])  # the first call is slow; keep it out of the timings
         self.retriever = Retriever(conn, STRATEGY)
         self.control_of = dict(conn.execute("SELECT chunk_id, control_id FROM chunks WHERE strategy = %s",
