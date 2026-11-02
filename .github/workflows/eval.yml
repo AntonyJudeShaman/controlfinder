@@ -1,0 +1,47 @@
+# The regression gate: unit tests, then hybrid retrieval's recall@10 on 30 dev queries against
+# results/ci_baseline.json. Chunk and query vectors come from data/ci/fixture.json.gz, so no model
+# is downloaded; ingest fetches only the pinned catalog and tokenizer files.
+name: eval
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  eval:
+    runs-on: ubuntu-24.04
+    services:
+      db:
+        image: pgvector/pgvector:0.8.7-pg16@sha256:7b822b0aac60967beb1ea5e576b8602c94c300a157d187f385ae3e0da199b90a
+        env:
+          POSTGRES_USER: controlfinder
+          POSTGRES_PASSWORD: controlfinder
+          POSTGRES_DB: controlfinder
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -h 127.0.0.1 -U controlfinder -d controlfinder"
+          --health-interval 2s
+          --health-timeout 3s
+          --health-retries 30
+    env:
+      DATABASE_URL: postgresql://controlfinder:controlfinder@localhost:5432/controlfinder
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: astral-sh/setup-uv@c18668ad3cf93ea998bef934396af7bb5c839dc7 # v10.2.0
+        with:
+          version: "0.12.3"
+          enable-cache: false
+      - name: Install
+        run: uv sync --locked
+      - name: Schema
+        run: make schema
+      - name: Ingest
+        run: uv run python -m controlfinder.ingest
+      - name: Load the fixture's vectors
+        run: make ci-load
+      - name: Unit tests
+        run: make test
+      - name: Recall gate (hybrid, no reranker)
+        run: make ci-gate
