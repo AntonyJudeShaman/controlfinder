@@ -510,3 +510,20 @@ With a paired bootstrap. I resample the questions 1,000 times, score both system
 I measured each one, too. The scope check caught only the 4 trivia questions, which the generator would have refused anyway, and cost 6,575 ms at p50. The citation check didn't fail a single answer on dev.
 
 ## Follow-ups from the quiz
+
+Jude asked what τ is before the first question, and then for all three questions with their answers, instead of answering them.
+
+**What is τ, in plain words?**
+τ (the Greek letter tau) is a pass mark. For each question, the reranker scores how well each of the 10 retrieved chunks matches it, and the best of those is the question's evidence score. If the evidence score is at least τ, the agent writes an answer. If not, it searches again with new words, at most twice, and then says "I don't know". "No gate" means no pass mark at all: every question goes to the generator, which can still refuse by itself, exactly as the Phase 4 pipeline does. The scores are on the reranker's own scale, where higher means a better match; on dev, first evidence scores ran from −8.89 to 3.36. Each row of the sweep table is one pass mark, with the agent's results on the 50 dev questions at that mark.
+
+**1. We tried 82 values of τ, and none gave a higher abstention F1 than no gate. Why couldn't the gate help?**
+The plain pipeline already refused all 20 unanswerable dev questions, so abstention recall was 1.000 with no gate and stayed 1.000 at every τ. A gate can only add refusals, and the only ones left to add were refusals of answerable questions, which lower abstention precision and so F1. The gate also couldn't aim: the 8 answerable questions the pipeline wrongly refused had a median first evidence score of −2.66, against −2.58 for the 22 it answered. Rewrites did turn three refusals into correct answers at some τ (q017, q025 and q036), but every τ that sent them to a rewrite also stopped good answers, so the best F1 was a tie, 0.833 at τ = −6.00.
+*An interviewer would push on:* is a gate ever useful? Yes, when the generator answers questions it should refuse, so recall is below 1.000. Here the generator's own refusal already did that job.
+
+**2. Where does the limit of two rewrites live, and why there and not in the rewrite prompt?**
+In the edge function after `grade_evidence`, `after_grade`. The `rewrite` node adds 1 to `attempts` in the state, and once `attempts` reaches `MAX_REWRITES`, which is 2, the edge sends the run to `abstain` instead of `rewrite`. In code the bound always holds, because no model output can cause a third rewrite; a limit written in a prompt is a request the model can ignore or miscount. It's also testable: the termination test grades every chunk −9 with τ = 0 and asserts the exact path, two rewrites ending in `abstain` with the reason `weak_evidence`. LangGraph's default limit of 25 steps is only a backstop that raises an error; ours ends on purpose, with an abstention and a reason, after at most 14 steps.
+*An interviewer would push on:* the other loop. The citation retry is bounded the same way, by `MAX_GENERATIONS` in `after_verify`.
+
+**3. Base text scored F1 0.952 and the pipeline 0.833 on the same questions. Why use a paired bootstrap for the difference instead of comparing their two intervals?**
+Both systems answered the same 50 questions, so their scores are linked: a question that's easy for one is usually easy for the other. Each system's own interval includes all of that question-to-question variation, and the two overlap, [0.703, 0.927] for the pipeline and [0.865, 1.000] for base text, which looks like "can't tell them apart". The paired bootstrap resamples the questions 1,000 times and scores both systems on each resample, so shared difficulty cancels and only the difference varies: +0.119 [+0.040, +0.219], which excludes 0. That fits what happened question by question: base text turned 6 refusals of answerable questions into correct answers, and changed nothing the other way.
+*An interviewer would push on:* 50 questions is small. The interval excludes 0 but is wide, from +0.040 to +0.219, and the sealed test set in Phase 6 is the real check.
