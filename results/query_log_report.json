@@ -1,0 +1,129 @@
+{
+  "what": "p50/p95 latency per stage and the abstention rate, per pipeline, from query_log",
+  "pipelines": {
+    "agent/eval-dev": {
+      "requests": 50,
+      "latency_ms": {
+        "total": {
+          "p50": 16746.9764,
+          "p95": 21422.5706
+        },
+        "generate": {
+          "p50": 9596.2052,
+          "p95": 13688.6148
+        },
+        "retrieve": {
+          "p50": 10.96,
+          "p95": 11.5929
+        },
+        "scope_check": {
+          "p50": 6575.4349,
+          "p95": 9124.351
+        },
+        "grade_evidence": {
+          "p50": 477.5609,
+          "p95": 535.6334
+        },
+        "verify_citations": {
+          "p50": 0.0107,
+          "p95": 0.014
+        },
+        "abstain": {
+          "p50": 0.0,
+          "p95": 0.0
+        }
+      },
+      "decided": 50,
+      "abstained": 28,
+      "abstention_rate": 0.56
+    },
+    "ask/agent": {
+      "requests": 1,
+      "latency_ms": {
+        "wall": {
+          "p50": 42.648,
+          "p95": 42.648
+        },
+        "total": {
+          "p50": 20277.7724,
+          "p95": 20277.7724
+        },
+        "generate": {
+          "p50": 13191.1269,
+          "p95": 13191.1269
+        },
+        "retrieve": {
+          "p50": 12.4029,
+          "p95": 12.4029
+        },
+        "scope_check": {
+          "p50": 6773.6858,
+          "p95": 6773.6858
+        },
+        "grade_evidence": {
+          "p50": 300.5434,
+          "p95": 300.5434
+        },
+        "verify_citations": {
+          "p50": 0.0133,
+          "p95": 0.0133
+        }
+      },
+      "decided": 1,
+      "abstained": 0,
+      "abstention_rate": 0.0
+    },
+    "ask/pipeline_base_text": {
+      "requests": 2,
+      "latency_ms": {
+        "wall": {
+          "p50": 24.2934,
+          "p95": 25.2095
+        },
+        "total": {
+          "p50": 13175.2913,
+          "p95": 14583.0678
+        },
+        "generate": {
+          "p50": 13161.5771,
+          "p95": 14569.1803
+        },
+        "retrieve": {
+          "p50": 13.5731,
+          "p95": 13.6703
+        },
+        "verify_citations": {
+          "p50": 0.1411,
+          "p95": 0.2172
+        }
+      },
+      "decided": 2,
+      "abstained": 0,
+      "abstention_rate": 0.0
+    },
+    "search/dense/C_separate": {
+      "requests": 3,
+      "latency_ms": {
+        "wall": {
+          "p50": 15.5998,
+          "p95": 43.6724
+        },
+        "embed": {
+          "p50": 10.667,
+          "p95": 32.6645
+        },
+        "total": {
+          "p50": 15.594,
+          "p95": 43.6653
+        },
+        "retrieve": {
+          "p50": 5.7677,
+          "p95": 11.0849
+        }
+      },
+      "decided": 0,
+      "abstained": 0,
+      "abstention_rate": null
+    }
+  }
+}
