@@ -132,6 +132,16 @@ def bm25_idf_floor(index: BM25Index) -> dict:
     }
 
 
+def systems(conn, vectors: dict[str, str], bm25: BM25Index, depth: int) -> dict[str, Callable[[Query], list[Hit]]]:
+    """The four baselines, each a function from a query to its hits."""
+    return {
+        "fts_and": lambda q: fts.search(conn, q.text, STRATEGY, "and", depth),
+        "fts_or": lambda q: fts.search(conn, q.text, STRATEGY, "or", depth),
+        "bm25": lambda q: bm25.search(conn, q.text, depth),
+        "dense": lambda q: search(conn, vectors[q.id], STRATEGY, depth, EXACT),
+    }
+
+
 def rounded(value):
     if isinstance(value, float):
         return round(value, 4)
@@ -152,14 +162,8 @@ def main() -> None:
         depth = fetch_depth(conn, STRATEGY, DEPTH)
         vectors = dict(zip([q.id for q in queries], embed_queries(model, [q.text for q in queries]), strict=True))
         bm25 = BM25Index(conn, STRATEGY)
-        systems = {
-            "fts_and": lambda q: fts.search(conn, q.text, STRATEGY, "and", depth),
-            "fts_or": lambda q: fts.search(conn, q.text, STRATEGY, "or", depth),
-            "bm25": lambda q: bm25.search(conn, q.text, depth),
-            "dense": lambda q: search(conn, vectors[q.id], STRATEGY, depth, EXACT),
-        }
         per_query, ranked, results = {}, {}, {}
-        for name, retrieve in systems.items():
+        for name, retrieve in systems(conn, vectors, bm25, depth).items():
             per_query[name], ranked[name], info = evaluate(retrieve, queries)
             results[name] = {**info, "metrics": summarize(per_query[name], queries)}
         examples = disagreements(conn, queries, ranked, bm25)
