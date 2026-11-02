@@ -1,4 +1,4 @@
-.PHONY: up down reset-db schema psql test ann-demo ingest goldset embed baselines ablations qa generate eval agent-eval docs
+.PHONY: up down reset-db schema psql test ann-demo ingest goldset embed baselines ablations qa generate eval agent-eval final-test docs
 
 up: .env
 	docker compose up -d --wait
@@ -66,6 +66,11 @@ eval: goldset embed baselines ablations qa generate
 # Model calls and reranker scores come from data/cache/; calls not in it need CURSOR_API_KEY.
 agent-eval:
 	uv run python -m controlfinder.eval.agent
+	$(MAKE) docs
+
+# The one run on the sealed test split (Phase 6). Refuses to start once results/final_test.json exists.
+final-test:
+	CONTROLFINDER_UNSEAL_TEST=1 uv run python -m controlfinder.eval.final_test
 	$(MAKE) docs
 
 # Regenerates every results table in docs/learn/*.md and README.md.
