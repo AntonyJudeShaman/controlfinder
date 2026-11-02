@@ -24,10 +24,11 @@ from controlfinder.eval.agent import SMALL_MODEL
 from controlfinder.eval.generation import GENERATOR_MODEL
 from controlfinder.generation import citations, prompt
 from controlfinder.generation.llm import LLM
+from controlfinder.ingest.chunks import STRATEGIES
 from controlfinder.ingest.ids import display_id, normalize_control_id
 from controlfinder.obs import log_request
 from controlfinder.retrieval import dense
-from controlfinder.retrieval.pipeline import Retriever, rerank
+from controlfinder.retrieval.pipeline import CANDIDATES, Retriever, rerank
 from controlfinder.retrieval.production import K, STRATEGY, Production
 from controlfinder.retrieval.rerank import Reranker
 
@@ -246,8 +247,11 @@ class Backend:
                                 if s in test_generation else None),
                        "production": s == self.production_system}
                       for s in agent["systems"]]
-        return {"metric": METRIC, "k": K, "retrieval": retrieval, "generation": generation,
-                "rules": {"retrieval": ablations["production"]["rule"], "tau": agent["agent"]["tau_rule"]}}
+        return {"metric": METRIC, "retrieval": retrieval, "generation": generation,
+                "rules": {"retrieval": ablations["production"]["rule"], "tau": agent["agent"]["tau_rule"]},
+                "knobs": {"retrieval": list(SCORE_KIND), "strategy": list(STRATEGIES),
+                          "k": {"min": 1, "max": CANDIDATES, "default": K}},
+                "production": {"search": PRODUCTION_SEARCH, "system": self.production_system}}
 
     def logs(self, pipeline: str | None, limit: int) -> dict:
         rows = self.conn.execute(

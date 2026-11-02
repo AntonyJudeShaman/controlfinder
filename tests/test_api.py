@@ -141,6 +141,9 @@ def test_configs_mark_one_production_setup_each(client):
     [retrieval] = [c for c in body["retrieval"] if c["production"]]
     assert (retrieval["retrieval"], retrieval["strategy"], retrieval["rerank"]) == ("dense", "C_separate", False)
     assert [g["system"] for g in body["generation"] if g["production"]] == ["pipeline_base_text"]
+    assert body["production"] == {"search": {"retrieval": "dense", "strategy": "C_separate", "k": 10, "rerank": False},
+                                  "system": "pipeline_base_text"}
+    assert body["knobs"]["k"] == {"min": 1, "max": 50, "default": 10}
 
 
 def test_logs_list_the_newest_first(client):
