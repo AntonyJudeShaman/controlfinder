@@ -386,3 +386,64 @@ No. With zero wrong answers, every bootstrap resample also has zero, so the inte
 Not wrong, but probably optimistic. On test, the plain pipeline wrongly refused only 4 answerable questions, against 8 on dev, so there was less to fix, and base text fixed 2 of them. A system picked partly because it led on dev also tends to lead by less on fresh data (the winner's curse). Base text still wasn't worse on a single test question, cost no extra model call, and still refused all 20 unanswerable ones. So it stays in production, but I'd quote the smaller test lead, and note that its interval touches zero.
 
 ## Follow-ups from the quiz
+
+Jude asked for all three questions with their answers instead of answering them, so this quiz isn't passed. These are the answers in plain words, starting with the terms they rely on.
+
+**1. The test run crashed six times, and we restarted it each time. An interviewer says: "So you ran on the test set seven times, and your numbers aren't clean any more." Are they right?**
+
+No. Seven starts made one run, and nobody saw a number in between.
+
+- **The words.** A "look" at the test set means seeing a test number and being able to change something because of it. The LLM cache, `data/cache/llm.jsonl`, is a notebook with one line per finished model call. Each line holds a key made from the model's name and the exact prompt, and the reply. Before calling the model, the code checks the notebook, and if the prompt is there it reuses the reply instead of calling.
+- **What happened.**
+  - Start 1 ran the retrieval part and began answering. During test question 3, the Cursor API returned "Network request failed" and Python stopped. No results file was written, but the calls that had finished were already in the notebook.
+  - Start 2 ran retrieval again, found questions 1 and 2 in the notebook (no calls), and carried on from question 3 until it crashed during question 14.
+  - The next starts stopped during questions 24, 28, 39 and 41.
+  - Start 7 finished all 50. Only then did it compute the metrics, print them and write `results/final_test.json`.
+- **Why the numbers equal an unbroken run's.**
+  - Every model call was made exactly once. A call either succeeded, so it was written down and reused, or failed, so nothing was written and it was made again on the next start.
+  - Retrieval has no randomness: the same vectors and the same exact search give the same top 10 every time.
+  - Grading is code, and the bootstrap's seed is fixed at 20261023, so the same answers give the same numbers.
+- **Why it isn't a second look.**
+  - Until start 7 finished, the only output was progress lines like `question 28/50`. No metric existed yet.
+  - Nothing changed between starts: the same commit, the same prompts, the same production pick.
+  - The restart policy was in `DECISIONS.md` before the run began.
+- **What would have made it a second look.** Two cases:
+  - The script prints test recall@10 per row before answering starts. After a crash, I switch production to hybrid because it looked better on test, and restart. Test has now changed a decision.
+  - After the run, I dislike a number, delete `results/final_test.json` and run again with an empty cache, hoping for luckier replies. The reported number becomes the best of several tries. The script blocks this: it refuses to start once the file exists.
+
+*An interviewer would push on:* model replies are random, so wouldn't an unbroken run have given different text? It could, but it too would have sampled each prompt once, so it's the same experiment. The intervals don't cover run-to-run model variation, which the README lists as a limitation.
+
+**2. 35 of 346 dev-versus-test checks were flagged. Does that mean the test set disagrees with dev?**
+
+No. The rule tells us where to look, and some flags come from luck alone. What matters is whether a flag changes a decision, and none does.
+
+- **The words.**
+  - A **check** is one setup, one metric and one query type, such as "row 2, normalized recall@5, all queries".
+  - A **95% interval** is the range the test number could plausibly have taken with a different draw of test queries. The bootstrap finds it by resampling test's subcategories 1,000 times.
+  - **The rule**, fixed before the run: flag a check when the dev number falls outside the test interval.
+- **Why luck alone raises flags.** Picture two classes of equal ability taking the same exam. The second class's range allows for its own luck. The first class's score has luck in it too, so it lands outside the second class's range more often than 5% of the time, even though nothing is different. Also, many checks measure nearly the same thing: recall@5, normalized recall@5 and nDCG@10 all reward getting gold controls into the top 5, so one real wobble raises several flags at once.
+- **One flag, worked through.** Take row 2, production's dense search, normalized recall@5 over all queries. Dev is 0.3774, and test is 0.3183 with interval [0.2577, 0.3771], so dev misses the interval by 0.0003. It has two causes:
+  - **A real part.** On example queries, plain recall@5 fell from 0.279 on dev to 0.238 on test.
+  - **A part from the answer key.** Normalized recall@5 divides the gold controls in the top 5 by the smaller of 5 and the number of gold controls. ID.IM-02, a dev query, has 40 gold controls. Its plain recall@5 can never exceed 5/40, but its normalized recall@5 can reach 5/5. So normalization lifts queries with big answer keys. Test's keys are smaller (its recall@5 ceiling is 0.843, against dev's 0.788), so normalization lifts test less.
+  - **Why production doesn't care.** Production sends the top 10 to the model, and recall@10 was 0.420 on dev and 0.421 on test.
+- **Which flag would have mattered.** One that reverses a decision. For example, the reranker helping on test, or hybrid beating dense with an interval above zero. Instead, the reranker hurt by −0.111 [−0.175, −0.055], and hybrid's edge was +0.015 [−0.021, +0.051].
+
+*An interviewer would push on:* is there a better rule? You could compute an interval for the dev − test difference itself, which allows for both splits' luck, or correct for the number of checks. We kept the simple rule because it was fixed in advance, and every flag is explained above.
+
+**3. The CI gate checks hybrid retrieval, but production uses dense alone. Why gate hybrid, and why did PR #1 fail the gate while every unit test passed?**
+
+- **The words.**
+  - A **unit test** checks one small function on made-up inputs. For example, `recall(["ac-3", "ia-2", "ac-2"], {"ac-2", "ia-2", "ac-3"}, 3) == 1` in `tests/test_metrics.py`.
+  - **CI** is GitHub running our checks on every push and pull request.
+  - The **gate** is a CI step that runs real retrieval on 30 real dev queries and fails if mean recall@10 falls more than 0.03 below the saved baseline, 0.4953.
+  - The **fixture**, `data/ci/fixture.json.gz`, holds the vectors of every chunk and of the 30 queries, so CI never downloads or runs the embedding model.
+- **Why hybrid.** Hybrid runs three parts: BM25 keyword search over Postgres's lexemes, pgvector cosine search, and RRF, which merges the two ranked lists into one. If any of the three breaks, the gate's recall drops, so one number guards all three. Gating dense alone would miss a broken BM25 or a broken merge, and both are still used by `/search` and the evaluations. The reranker stays out because it needs a large model download, and it's off in production anyway.
+- **Why PR #1 failed only the gate.** The PR dropped the dense half of hybrid, so "hybrid" quietly became BM25 alone.
+  - Every function still ran and still returned a ranked list of the right shape.
+  - The fusion tests in `tests/test_fusion.py` still passed, because RRF itself was fine: they give it small ranked lists and check how it merges them. No unit test asks whether hybrid's output includes dense results.
+  - The gate measures the outcome. With BM25 alone, recall@10 on the 30 queries fell below the floor of 0.4653 (0.4953 − 0.03), and CI turned red at the gate step ([run 41408595856](https://github.com/AntonyJudeShaman/controlfinder/actions/runs/41408595856)).
+
+  Unit tests are like checking each part of a car: the engine turns over and the brakes squeeze. The gate is a test drive that notices the car got slow.
+- **Why such a small tolerance is safe.** The fixture and the code are fixed, and the search is exact, so the gate gives the same number on every run. It moves only when the code or the data changes, so it can't fail at random. 0.03 is AGENTS.md's "3 points". The fixture also stores each chunk's text hash, so after a chunking change it refuses to load, instead of scoring new chunks against old vectors.
+
+*An interviewer would push on:* what if you improve retrieval on purpose? The gate only fails on drops, so it passes. Then `make ci-baseline` rewrites `results/ci_baseline.json` in the same PR, so the floor rises with the improvement.
