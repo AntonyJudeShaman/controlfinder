@@ -1,4 +1,4 @@
-.PHONY: up down reset-db schema psql test ann-demo ingest goldset embed baselines ablations qa generate eval agent-eval final-test ci-fixture ci-load ci-baseline ci-gate docs
+.PHONY: up down reset-db schema psql test ann-demo ingest goldset embed baselines ablations qa generate eval agent-eval final-test ci-fixture ci-load ci-baseline ci-gate api report docs
 
 up: .env
 	docker compose up -d --wait
@@ -86,6 +86,14 @@ ci-baseline:
 
 ci-gate:
 	uv run python -m controlfinder.eval.ci gate
+
+# The API on http://127.0.0.1:8000. /ask calls a model unless data/cache/llm.jsonl has the prompt.
+api:
+	uv run uvicorn controlfinder.api.app:app --port 8000
+
+# p50/p95 latency per stage and the abstention rate, per pipeline, from query_log.
+report:
+	uv run python -m controlfinder.obs.report
 
 # Regenerates every results table in docs/learn/*.md and README.md.
 docs:
