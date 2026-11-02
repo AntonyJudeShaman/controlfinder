@@ -91,6 +91,7 @@ ci-gate:
 api:
 	uv run uvicorn controlfinder.api.app:app --port 8000
 
+# The app on http://localhost:3000. It talks to `make api`, so start that first.
 web:
 	cd web && pnpm install --frozen-lockfile && pnpm build && pnpm start
 
