@@ -5,6 +5,7 @@ description = "Evaluated RAG + LangGraph agent over NIST SP 800-53 Rev 5"
 requires-python = ">=3.11"
 dependencies = [
     "cursor-sdk==1.0.37",
+    "fastapi==0.143.0",
     "langgraph==1.2.14",
     "matplotlib==3.11.2",
     "openpyxl==3.1.5",
@@ -13,10 +14,12 @@ dependencies = [
     "rank-bm25==0.2.2",
     "sentence-transformers==6.1.0",
     "tokenizers==0.23.2",
+    "uvicorn==0.54.0",
 ]
 
 [dependency-groups]
 dev = [
+    "httpx==0.28.1",
     "pytest==9.1.1",
 ]
 
