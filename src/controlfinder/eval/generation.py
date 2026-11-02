@@ -52,8 +52,8 @@ def gold_coverage(row: dict) -> str:
     return "enhancement_only" if row["gold_in_context"] else "none"
 
 
-def answer_and_grade(q: Question, chunks: list[tuple[str, str]], generator: LLM, grader: LLM) -> dict:
-    """One question's answer, its citation check and its faithfulness score, as a results row."""
+def answer_and_grade(q: Question, chunks: list[tuple[str, str]], generator: LLM, grader: LLM | None) -> dict:
+    """One question's answer, its citation check and, given a grader, its faithfulness score, as a results row."""
     reply = generator(prompt.generation_prompt(q.question, chunks))
     context_ids = [control_id for control_id, _ in chunks]
     row = {"id": q.id, "question": q.question, "category": q.category, "answerable": q.answerable,
@@ -65,7 +65,9 @@ def answer_and_grade(q: Question, chunks: list[tuple[str, str]], generator: LLM,
     if q.answerable:
         row["gold_coverage"] = gold_coverage(row)
     if row["decision"] == "answer":
-        row |= grade_citations(q, reply.text, context_ids) | judge_answer(q, chunks, reply.text, grader)
+        row |= grade_citations(q, reply.text, context_ids)
+        if grader:
+            row |= judge_answer(q, chunks, reply.text, grader)
     return row
 
 
@@ -161,11 +163,16 @@ STATISTICS = {
 
 def summarize(rows: list[dict]) -> dict:
     answered = [r for r in rows if r["decision"] == "answer"]
-    return {
+    judged = any("faithfulness" in r for r in answered)
+    summary = {
         "abstention_counts": counts(rows),
-        "metrics": {name: resample_ci(rows, statistic) for name, statistic in STATISTICS.items()},
-        "faithfulness_scores": {str(s): sum(r["faithfulness"] == s for r in answered) for s in range(1, 6)}
-                               | {"unparsed": sum(r["faithfulness"] is None for r in answered)},
+        "metrics": {name: resample_ci(rows, statistic) for name, statistic in STATISTICS.items()
+                    if judged or name != "faithfulness"},
+    }
+    if judged:
+        summary["faithfulness_scores"] = ({str(s): sum(r["faithfulness"] == s for r in answered) for s in range(1, 6)}
+                                          | {"unparsed": sum(r["faithfulness"] is None for r in answered)})
+    return summary | {
         "abstained_by_category": {category: {"questions": sum(r["category"] == category for r in rows),
                                              "abstained": sum(r["category"] == category and r["decision"] == "abstain"
                                                               for r in rows)}
